@@ -54,7 +54,7 @@ def __init__(_cajas: uint256, _mensualidad: uint256, _tiempo_disfrute: uint256,_
 def alquilar():
     assert self.cajas > 0
     assert msg.value == self.mensualidad + self.fianza
-    assert self.indice_libres > 0
+    assert self.indice_libres > 1
     if self.indice <= self.cajas_totales:
         self.clientes[self.indice]=Caja({propietario: msg.sender,
                                          tdisfrute: block.timestamp + self.tiempo_disfrute, 
