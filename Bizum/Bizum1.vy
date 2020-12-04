@@ -28,7 +28,7 @@ def pagar(direccion: address, valor: uint256):
     assert msg.sender != direccion
     assert (valor <= self.balance) or (msg.value >= valor)
     send(direccion,valor)
-    log Transferencia(self.cuenta, direccion,valor)
+    log Transferencia(msg.sender, direccion,valor)
     
 #Funcion para añadir ether a la cuenta
 @payable
