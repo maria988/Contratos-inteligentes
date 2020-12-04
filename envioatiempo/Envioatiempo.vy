@@ -1,57 +1,78 @@
-#devolucion de importe si no llega a tiempo
+#Devolucion de parte del dinero si el producto no llega a tiempo
 
+#Creamos el evento Devolucion para que quede registrado el dinero que se devolvio
 event Devolucion:
     emisor: indexed(address)
     receptor: indexed(address)
-    value: uint256
-
+    dinero: uint256
+    
+#Creamos el evento Compra para que quede registrado el dinero que se pagó
 event Compra:
     comprador:indexed(address)
     vendedor: indexed(address)
     valor: uint256
 
+#Variables que inicializa la empresa/vendedor
+#Direccion de la empresa/vendedor
 empresa: public(address)
-comprador: public(address)
+#precio del producto
 precio: public(uint256)
-porc_a_devolver: public(decimal)
+#Dinero que se ofrece a pagar la empresa si no llega en la fecha indicada
+devolver: public(uint256)
+#Tiempo máximo que da la empresa para recibir el paquete
 tiempo_envio: public(uint256)
-tiempo_restante: public(uint256)
-recibido: public(bool)
 
+#Tiempo que queda para recibir el paquete
+tiempo_restante: public(uint256)
+
+#Variables que modifica e inicializa el comprador
+recibido: public(bool)
+comprador: public(address)
+
+#Constructor del contrato
 @external
-def __init__(_precio: uint256,_porc_a_devolver: decimal,_tiempo_envio: uint256):
+def __init__(_precio: uint256,_devolver: uint256,_tiempo_envio: uint256):
+    #No se crea el contrato si el precio es 0, y si el dinero a devover no es mayor que 0
     assert _precio > 0
-    assert _porc_a_devolver > 0.0
-    assert _porc_a_devolver <= 100.0
+    assert _devolver > 0
     self.empresa = msg.sender
     self.precio = _precio
-    self.porc_a_devolver =_porc_a_devolver
+    self.devolver =_devolver
     self.tiempo_envio = _tiempo_envio
-    
+
+#Funcion para comprar el producto   
 @payable
 @external
 def comprar():
-    assert msg.value > 0
-    assert msg.value >= self.precio
+    #No se compra si el valor del mensaje es distinto del precio
+    assert msg.value == self.precio
     self.comprador = msg.sender
+    #Queda registrada la compra aunque no se le envie 100% del dinero al vendedor
     log Compra(msg.sender,self.empresa,self.precio)
-    if msg.value > self.precio:
-        send(msg.sender,msg.value-self.precio)
+    send(self.empresa, self.precio - self.devolver)
     self.tiempo_restante = block.timestamp + self.tiempo_envio
 
+#Funcion que utiliza el comprador cuando ha recibido el producto
+#Hace que el dinero restante vaya el vendedor, si ha llegado a tiempo
+#o regrese al comprador
 @external
 def frecibido():
+    #Si se ha recibido no se puede volver a llamar
     assert not self.recibido
+    #Solo el comprador la puede usar
     assert msg.sender == self.comprador
-    d_devolver: uint256 = 0
     self.recibido = True
+    #Comprueba si ha llegado a tiempo
+    #Si no ha llegado se registra la devolucion de la parte correspondiente al comprador
+    #y se destruye el contrato enviando el dinero que habia al comprador
     if self.tiempo_restante < block.timestamp:
-        cambio: decimal = convert(self.precio,decimal)
-        d_devolver = convert((cambio * self.porc_a_devolver)/100.0,uint256)
-         
-    log Devolucion(self.empresa,msg.sender,d_devolver)
-    send(msg.sender,d_devolver)
-    selfdestruct(self.empresa)
+        log Devolucion(self.empresa,self.comprador,self.devolver)
+        selfdestruct(self.comprador)
+    #En caso contrario, se registra la devolucion con 0 y se destruye el contrato
+    #enviando el dinero a la empresa
+    else:
+        log Devolucion(self.empresa,self.comprador,0)
+        selfdestruct(self.empresa)
     
     
     
