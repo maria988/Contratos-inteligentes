@@ -36,7 +36,7 @@ comprador: public(address)
 @payable
 @external
 def __init__(_precio: uint256,_tiempo_envio: uint256):
-    #No se crea el contrato si el precio es 0, y si el msg.value no es mayor que 0
+    #No se crea el contrato si el precio es 0, y si el ether enviado no es mayor que 0
     assert _precio > 0
     assert msg.value > 0
     self.empresa = msg.sender
@@ -57,7 +57,7 @@ def comprar():
     self.tiempo_recibir = block.timestamp + self.tiempo_envio
 
 #Funcion que utiliza el comprador cuando ha recibido el producto
-#Hace que el dinero restante vaya el vendedor, si ha llegado a tiempo
+#Hace que el ether restante vaya al vendedor, si ha llegado a tiempo
 #o regrese al comprador
 @external
 def frecibido():
@@ -68,13 +68,13 @@ def frecibido():
     self.recibido = True
     #Comprueba si ha llegado a tiempo
     #Si no ha llegado se registra la devolucion de la parte correspondiente al comprador
-    #y se destruye el contrato enviando el dinero que habia al comprador
+    #y se destruye el contrato enviando el ehter que habia al comprador
     persona: address= self.empresa
     if self.tiempo_recibir < block.timestamp:
         log Devolucion(self.empresa,self.comprador,self.devolver)
         persona = self.comprador
     #En caso contrario, se registra la devolucion con 0 y se destruye el contrato
-    #enviando el dinero a la empresa
+    #enviando el ether a la empresa
     else:
         log Devolucion(self.empresa,self.comprador,0)
       
