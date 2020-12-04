@@ -62,11 +62,12 @@ def cambio():
         send(self.arrendatario,self.fianza)
         selfdestruct(self.arrendador)
     else:
-        #Si el arrendatario ha pagado el mesa
+        #Si el arrendatario ha pagado el mes
         if self.pagada:
             log Transaccion(self.arrendador,self.arrendatario,self.mensualidad)
             send(self.arrendador,self.mensualidad)
             self.tiempo_mensual += self.tiempo
+            self.pagada = False
                
         else:
             self.alquilada=False
