@@ -1,14 +1,14 @@
-#Devolucion de parte del dinero si el producto no llega a tiempo
+#Devolucion de parte del ether si el producto no llega a tiempo
 #Variacion: el vendedor recibe el 100% del precio, 
-#pero paga previamente el dinero que se devolvería
+#pero paga previamente el ether que se devolvería
 
-#Creamos el evento Devolucion para que quede registrado el dinero que se devolvio
+#Creamos el evento Devolucion para que quede registrado el ether que se devolvio
 event Devolucion:
     emisor: indexed(address)
     receptor: indexed(address)
     dinero: uint256
     
-#Creamos el evento Compra para que quede registrado el dinero que se pagó
+#Creamos el evento Compra para que quede registrado el ether que se pagó
 event Compra:
     comprador:indexed(address)
     vendedor: indexed(address)
@@ -19,7 +19,7 @@ event Compra:
 empresa: public(address)
 #precio del producto
 precio: public(uint256)
-#Dinero que se ofrece a pagar la empresa si no llega en la fecha indicada
+#Ether que se ofrece a pagar la empresa si no llega en la fecha indicada
 devolver: public(uint256)
 #Tiempo máximo de envio que da la empresa para recibir el paquete
 tiempo_envio: public(uint256)
@@ -32,7 +32,7 @@ recibido: public(bool)
 comprador: public(address)
 
 #Constructor del contrato
-#La empresa paga el dinero que va a devolver
+#La empresa paga el ether que va a devolver
 @payable
 @external
 def __init__(_precio: uint256,_tiempo_envio: uint256):
