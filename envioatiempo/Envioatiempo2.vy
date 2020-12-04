@@ -1,5 +1,6 @@
 #Devolucion de parte del dinero si el producto no llega a tiempo
-
+#Variacion: En vez de pagar en la construccion del contrato el vendedor, recibe el total menos el descuento
+#y el descuento le recibe, si llega a tiempo, cuando el vendedor recibe el articulo.
 #Creamos el evento Devolucion para que quede registrado el dinero que se devolvio
 event Devolucion:
     emisor: indexed(address)
@@ -23,7 +24,7 @@ devolver: public(uint256)
 tiempo_envio: public(uint256)
 
 #Tiempo que queda para recibir el paquete
-tiempo_restante: public(uint256)
+tiempo_recibir: public(uint256)
 
 #Variables que modifica e inicializa el comprador
 recibido: public(bool)
@@ -50,7 +51,7 @@ def comprar():
     #Queda registrada la compra aunque no se le envie 100% del dinero al vendedor
     log Compra(msg.sender,self.empresa,self.precio)
     send(self.empresa, self.precio - self.devolver)
-    self.tiempo_restante = block.timestamp + self.tiempo_envio
+    self.tiempo_recibir = block.timestamp + self.tiempo_envio
 
 #Funcion que utiliza el comprador cuando ha recibido el producto
 #Hace que el dinero restante vaya el vendedor, si ha llegado a tiempo
@@ -65,14 +66,16 @@ def frecibido():
     #Comprueba si ha llegado a tiempo
     #Si no ha llegado se registra la devolucion de la parte correspondiente al comprador
     #y se destruye el contrato enviando el dinero que habia al comprador
-    if self.tiempo_restante < block.timestamp:
+    persona: address= self.empresa
+    if self.tiempo_recibir < block.timestamp:
         log Devolucion(self.empresa,self.comprador,self.devolver)
-        selfdestruct(self.comprador)
+        persona = self.comprador
     #En caso contrario, se registra la devolucion con 0 y se destruye el contrato
     #enviando el dinero a la empresa
     else:
         log Devolucion(self.empresa,self.comprador,0)
-        selfdestruct(self.empresa)
+      
+    selfdestruct(persona)
     
     
     
