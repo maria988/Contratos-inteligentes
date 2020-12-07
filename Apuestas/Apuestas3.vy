@@ -40,7 +40,7 @@ def __init__( tiempo_inicio: uint256,duracion: uint256):
     self.termina = self.empieza + duracion
  
 #Funcion externa para que cada jugador apueste.
-#Como netrada la funcion recibe dos argumentos, que son los puntos de cada equipo.           
+#Como entrada la funcion recibe dos argumentos, que son los puntos de cada equipo.           
 @external
 @payable
 def apostar(eq1: uint256,eq2: uint256):
@@ -50,6 +50,13 @@ def apostar(eq1: uint256,eq2: uint256):
     nfi: uint256 = self.indice
     self.apostadores[nfi] = Juego({apostador: msg.sender,equipo1: eq1, equipo2:eq2,apuesta:msg.value})
     self.indice = nfi + 1
+
+#Funcion a la que solo puede acceder la casa para saber el ether que tiene que introducir
+@view
+@external
+def necesario()-> uint256:
+    assert msg.sender == self.casa
+    return (self.balance - self.inicial) / 2
 
 #Funcion para que la casa de apuestas introducza la mitad de ether del ether recibido.
 #Se puede acceder a el cuando el partido haya empezado puesto que ya no se puede apostar.
@@ -62,7 +69,7 @@ def mitad():
     self.invertido = True
     
 
-#Funcion dar a los apostantes el dinero ganado
+#Funcion dar a los apostantes el ether ganado
 @external
 def devolver():
     assert block.timestamp > self.termina
