@@ -1,23 +1,34 @@
-#Apostar en un partido de futbol con cambios
-struct Bet:
+#Apostar en un partido mas completo que #1 y #2
+#Creamos una estructura para almacenar las apuestas en un diccionario
+struct Juego:
     apostador: address
     equipo1: uint256
     equipo2: uint256
     apuesta: uint256
-    
+ 
+#Variables definidas inicialmente
 casa:public(address)
+inicial:uint256
+empieza:public(uint256)
+termina: public(uint256)
 
-cequipo1: uint256
-cequipo2: uint256
-hstart:public(uint256)
-hend: public(uint256)
-ni : uint256
-apostadores: HashMap[uint256, Bet]
-niv : uint256
+#Variable para almacenar los puntos de cada equipo
+pequipo1: uint256
+pequipo2: uint256
+
+#Variables para los indices del diccionario y el diccionario
+indice : uint256
+apostadores: HashMap[uint256, Juego]
+sigindice : uint256
+
+#Variables para saber si la casa ha mandado el ether necesario y si se le ha devuelto el dinero a todos
 invertido: bool
 todos: bool
-inicial:uint256
-invertido_total: uint256
+
+
+
+#Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
+#y que el ether enviado por la casa de apuestas se mayor que cero.
 @payable
 @external    
 def __init__( tiempo_inicio: uint256,duracion: uint256):
@@ -25,81 +36,89 @@ def __init__( tiempo_inicio: uint256,duracion: uint256):
     assert duracion > 0 
     self.inicial = msg.value
     self.casa = msg.sender
-    self.hstart = block.timestamp + tiempo_inicio
-    self.hend = self.hstart + duracion
+    self.empieza = block.timestamp + tiempo_inicio
+    self.termina = self.empieza + duracion
  
-   
+#Funcion externa para que cada jugador apueste.
+#Como netrada la funcion recibe dos argumentos, que son los puntos de cada equipo.           
 @external
 @payable
-def bet(eq1: uint256,eq2: uint256):
-    assert not block.timestamp >self.hstart
+def apostar(eq1: uint256,eq2: uint256):
+    assert not block.timestamp >self.empieza
     assert msg.sender != self.casa
     assert msg.value > 0 
-    nfi: uint256 = self.ni
-    self.apostadores[nfi] = Bet({apostador: msg.sender,equipo1: eq1, equipo2:eq2,apuesta:msg.value})
-    self.ni = nfi + 1
+    nfi: uint256 = self.indice
+    self.apostadores[nfi] = Juego({apostador: msg.sender,equipo1: eq1, equipo2:eq2,apuesta:msg.value})
+    self.indice = nfi + 1
 
+#Funcion para que la casa de apuestas introducza la mitad de ether del ether recibido.
+#Se puede acceder a el cuando el partido haya empezado puesto que ya no se puede apostar.
 @payable
 @external
 def mitad():
-    assert block.timestamp >self.hstart
+    assert block.timestamp > self.empieza
     assert self.casa == msg.sender
-    self.invertido_total = msg.value + self.inicial
-    assert self.invertido_total  >= (self.balance - self.inicial - msg.value) / 2
+    assert msg.value + self.inicial  >= (self.balance - self.inicial - msg.value) / 2
     self.invertido = True
     
 
-
+#Funcion dar a los apostantes el dinero ganado
 @external
 def devolver():
-    assert block.timestamp > self.hend
+    assert block.timestamp > self.termina
     assert self.casa == msg.sender
     assert self.invertido
-    nive:uint256 = self.niv
+    nive:uint256 = self.sigindice
     for i in range (nive,nive+30):
-        if i > self.ni:
-            nive = self.ni
+        if i > self.indice:
+            nive = self.indice
             self.todos = True
             return
         else:
-            if (self.apostadores[i].equipo1 == self.cequipo1) and (self.apostadores[i].equipo2 == self.cequipo2):
+            if (self.apostadores[i].equipo1 == self.pequipo1) and (self.apostadores[i].equipo2 == self.pequipo2):
                 send(self.apostadores[i].apostador,self.apostadores[i].apuesta + (self.apostadores[i].apuesta/2) )
                 
-            self.apostadores[i]= empty(Bet)
-    self.niv = nive + 30
+            self.apostadores[i]= empty(Juego)
+    self.sigindice = nive + 30
 
+#Funcion para asignar a las variables globales la puntuacion de cada equipo
 @external
 def ganadores(_eq1: uint256, _eq2: uint256):
     assert msg.sender == self.casa
-    assert block.timestamp > self.hend
+    assert block.timestamp > self.termina
     assert _eq1 >= 0 and _eq2 >= 0
-    self.cequipo1 = _eq1
-    self.cequipo2 = _eq2
+    self.pequipo1 = _eq1
+    self.pequipo2 = _eq2
     
+#Funcion externa que devulve un booleano para saber si ha terminado el partido
 @view
 @external
 def terminado()-> bool:
-    return block.timestamp > self.hend
+    return block.timestamp > self.termina
 
+#Funcion externa que devulve un booleano para saber si ha empezado el partido
 @view
 @external
 def empezado() -> bool:
-    return block.timestamp >self.hstart
+    return block.timestamp >self.empieza
 
+#Funcion externa que devuelve un uint256, que es el ether ganado
 @view
 @external
-def ganar(apos:Bet)-> uint256:
-    assert block.timestamp > self.hend
-    if (apos.equipo1 == self.cequipo1) and (apos.equipo2 == self.cequipo2):
+def ganar(apos:Juego)-> uint256:
+    assert block.timestamp > self.termina
+    if (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2):
         return apos.apuesta + (apos.apuesta/2) 
     else:
         return 0
 
+#Funcion externa que devuelve un booleano para saber si se ha acertado con la jugada o no
 @view
 @external
-def ganado(apos: Bet)-> bool:
-    return (apos.equipo1 == self.cequipo1) and (apos.equipo2 == self.cequipo2)
+def ganado(apos: Juego)-> bool:
+    return (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
 
+#Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
 @external
 def finalizacion():
     assert self.todos
