@@ -3,12 +3,12 @@
 #si es llenado se devuelve lo que no se haya echado
 
 #Creamos una estructura para guardar los litros y el precio
-struct Gasofalineria:
+struct Combustibles:
     litros: uint256
     precio_litro: uint256
 
 #Creamos una estructura para almacenar distintos valores
-struct surtidor:
+struct Calles:
     uso: bool 
     cliente: address
     tope: uint256
@@ -20,11 +20,11 @@ struct surtidor:
 empresa: public(address)
 maximo: uint256
 
-#Para cada tipo de gasolina almacena la estructura Gasofalineria
-gasolinera: public(HashMap[String[3],Gasofalineria])
+#Para cada tipo de gasolina almacena la estructura Combustibles
+gasolinera: public(HashMap[String[3],Combustibles])
 
-#para cada surtidor almacena la estructura surtidor
-surtidores: public(HashMap[uint256,surtidor])
+#para cada surtidor almacena la estructura Calles
+surtidores: public(HashMap[uint256,Calles])
 
 #para cada seleccion almacena el precio de la seleccion
 seleccion: public(HashMap[uint256,uint256])
@@ -53,10 +53,10 @@ def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: u
     assert _p6 > _p5
     assert _p7 > _p6
     self.empresa = msg.sender
-    self.gasolinera["G95"] = Gasofalineria({litros: _litros95,precio_litro: _precio95})
-    self.gasolinera["G98"] = Gasofalineria({litros: _litros98,precio_litro: _precio98})
-    self.gasolinera["DiN"] = Gasofalineria({litros: _litrosN,precio_litro: _precioN})
-    self.gasolinera["DiP"] = Gasofalineria({litros: _litrosP,precio_litro: _precioP})
+    self.gasolinera["G95"] = Combustibles({litros: _litros95,precio_litro: _precio95})
+    self.gasolinera["G98"] = Combustibles({litros: _litros98,precio_litro: _precio98})
+    self.gasolinera["DiN"] = Combustibles({litros: _litrosN,precio_litro: _precioN})
+    self.gasolinera["DiP"] = Combustibles({litros: _litrosP,precio_litro: _precioP})
     self.maximo = _maximo
     self.seleccion[1] = _p1
     self.seleccion[2] = _p2
@@ -84,7 +84,7 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
     assert msg.value == self.seleccion[sel]* self.gasolinera[comb].precio_litro
     assert self.gasolinera[comb].litros >= self.gasolinera[comb].precio_litro * msg.value
     
-    self.surtidores[calle] = surtidor({uso:True,cliente: msg.sender,tope: self.seleccion[sel],combustible:comb,pagado:msg.value,selec:sel})
+    self.surtidores[calle] = Calles({uso:True,cliente: msg.sender,tope: self.seleccion[sel],combustible:comb,pagado:msg.value,selec:sel})
 
 #Funcion para volver a poner el booleano use en False y asi no poder usarse hasta depositar ether
 #En el caso de haber seleccionado la opcion 7 que es la de llenado, se devuelve el ether correspondiente a los litros no echados
@@ -101,7 +101,7 @@ def parar(calle: uint256, litros: uint256,lleno: bool):
         
     else:
         send(self.empresa,self.surtidores[calle].pagado)
-    self.surtidores[calle] = empty(surtidor)
+    self.surtidores[calle] = empty(Calles)
 
 #Funcion para llenar los depositos de combustible
 @external
