@@ -135,8 +135,8 @@ def tiempoqueda(ncaja: uint256) -> uint256:
 @view
 @internal
 def _tiempoquedapagar(ncaja: uint256)-> uint256:
-    assert self.clientes[ncaja].ttope > block.timestamp
-    return self.clientes[ncaja].ttope - block.timestamp
+    assert self.clientes[ncaja].tdisfrute > block.timestamp
+    return self.clientes[ncaja].tdisfrute - block.timestamp
 
 #Funcion externa que llama a la funcion anterior
 @view
@@ -150,14 +150,14 @@ def tiempoquedapagar(ncaja: uint256) -> uint256:
 def cambio(ncaja:uint256):
     #Se comprueba que es un numero de caja valido
     assert ncaja <= self.cajas_totales
-    #Se comprueba que el tiempo de uso es menor que el tiempo de pago
+    #Se comprueba que el tiempo de uso es menor que el tiempo actual
     assert self.clientes[ncaja].tdisfrute < block.timestamp
     #Si se ha pasado el tiempo tope de pago
     if self.clientes[ncaja].ttope < block.timestamp:
         #Si se ha pagado el mes pero no hay clave
         if self.clientes[ncaja].pagada:
             send(self.clientes[ncaja].propietario,self.fianza + self.mensualidad)
-        #Si se ha dado la llave pero no se ha pagado s ellama a la funcion _moroso
+        #Si se ha dado la llave pero no se ha pagado se llama a la funcion _moroso
         else:
             self._moroso(ncaja)
     #Si todavia esta dentro del tiempo de cambio
@@ -203,4 +203,3 @@ def dejarcaja(ncaja: uint256):
     assert msg.sender == self.clientes[ncaja].propietario
     assert self.clientes[ncaja].tdisfrute >= block.timestamp
     self.clientes[ncaja].dejar = True
-    
