@@ -81,10 +81,10 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
     assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
     assert sel < 8
     assert sel > 0
-    assert msg.value == self.seleccion[sel]* self.gasolinera[comb].precio_litro
-    assert self.gasolinera[comb].litros >= self.gasolinera[comb].precio_litro * msg.value
+    assert msg.value == self.seleccion[sel]
+    assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro
     
-    self.surtidores[calle] = Calles({uso:True,cliente: msg.sender,tope: self.seleccion[sel],combustible:comb,pagado:msg.value,selec:sel})
+    self.surtidores[calle] = Calles({uso:True,cliente: msg.sender,tope: self.seleccion[sel]/ self.gasolinera[comb].precio_litro,combustible:comb,pagado:msg.value,selec:sel})
 
 #Funcion para volver a poner el booleano use en False y asi no poder usarse hasta depositar ether
 #En el caso de haber seleccionado la opcion 7 que es la de llenado, se devuelve el ether correspondiente a los litros no echados
