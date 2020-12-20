@@ -29,7 +29,7 @@ canjear: public(String[10])
 #Direccion del cliente
 cliente: address
 
-"""Esto no está pero puede estar bien"""
+#Esto no está pero puede estar bien
 #Veces que ha visitado el comercio
 uso: public(uint256)
 rangos_clientes: public(HashMap[uint256, uint256])
@@ -46,6 +46,9 @@ def __init__(_p1:uint256, _d1:uint256,_p2:uint256, _d2:uint256,_p3:uint256, _d3:
     assert _d1 != _d2
     assert _d2 != _d3
     assert _d3 != _d1
+    assert (_d1 > 0 and _d1 <= 100)
+    assert (_d2 > 0 and _d2 <= 100)
+    assert (_d3 > 0 and _d3 <= 100)
     self.empresa = msg.sender
     self.premios[1] = Premios({puntos: _p1,descuento: _d1})
     self.cupones[1] = _c1
