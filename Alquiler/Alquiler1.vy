@@ -41,10 +41,9 @@ def __init__( _mensualidad: uint256, _tiempo: uint256, _tiempo_contrato: uint256
 #Funcion para alquilar la casa en caso de que no esté alquilada
 @payable    
 @external
-def alquilar(cantidad: uint256):
+def alquilar():
     assert not self.alquilada
     assert msg.value == self.fianza + self.mensualidad
-    assert msg.value >= cantidad*(self.mensualidad+self.fianza)
     self.arrendatario = msg.sender
     self.alquilada = True
     self.tiempo_mensual = block.timestamp + self.tiempo
