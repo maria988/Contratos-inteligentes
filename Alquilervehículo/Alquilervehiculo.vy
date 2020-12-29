@@ -1,4 +1,5 @@
 #Alquiler de una bicicleta/vehículo por tiempo
+# @version ^0.2.8
 
 #Precio por unidad de tiempo
 precio_udt: public(uint256)
@@ -7,7 +8,7 @@ empresa: public(address)
 #Tiempo maximo de uso por el ether introducido
 tiempo_uso: public(uint256)
 #Booleano que dice si el vehiculo está activo o no
-usado: bool
+usado: public(bool)
 #Direccion del usuario
 persona: public(address)
 #Precio por empezar a usar el vehiculo
@@ -26,7 +27,7 @@ def __init__(_precio_udt: uint256, _precio_inicio: uint256):
 @payable
 @external
 def alquilar():
-    assert msg.value > self.precio_inicio
+    assert msg.value > self.precio_inicio, "Suficiente"
     assert not self.usado
     self.tiempo_uso = block.timestamp + (msg.value/self.precio_udt)
     self.usado = True
@@ -37,8 +38,8 @@ def alquilar():
 #En este caso el vehiculo para( pasa a False el bool de uso) y se envia el ether e al empresa
 @external
 def fin_viaje():
-    assert self.usado
-    assert self.empresa == msg.sender
+    assert self.usado,"En uso"
+    assert self.empresa == msg.sender,"Empresa"
     assert block.timestamp > self.tiempo_uso
     self.usado = False
     send(self.empresa,self.balance)
@@ -47,10 +48,9 @@ def fin_viaje():
 #y quiera pararlo. Se le devuelve el ether que no haya usado
 @external
 def dejar():
-    assert self.usado
-    assert msg.sender == self.persona
+    assert self.usado,"En uso"
+    assert msg.sender == self.persona,"Persona"
     assert block.timestamp <= self.tiempo_uso
     self.usado = False
     send(self.persona, (self.tiempo_uso - block.timestamp)*self.precio_udt)
     send(self.empresa,self.balance)
-    
