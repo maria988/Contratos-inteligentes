@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Apostar en un partido 
 #Creamos una estructura para almacenar las apuestas en un diccionario
 struct Juego:
@@ -8,7 +9,7 @@ struct Juego:
 
 #Variables definidas inicialmente
 casa:public(address)
-inicial:uint256
+inicial:public(uint256)
 empieza:public(uint256)
 termina: public(uint256)
 
@@ -37,9 +38,9 @@ def __init__( tiempo_inicio: uint256,duracion: uint256):
 @external
 @payable
 def apostar(eq1: int128,eq2: int128):
-    assert block.timestamp < self.empieza 
-    assert msg.sender != self.casa
-    assert msg.value > 0 
+    assert block.timestamp < self.empieza
+    assert msg.sender != self.casa,"Jugador"
+    assert msg.value > 0,"Apuesta positiva"
     nfi: int128 = self.ni
     self.apostadores[nfi] = Juego({apostador: msg.sender,equipo1: eq1, equipo2:eq2,apuesta:msg.value})
     self.ni = nfi + 1
