@@ -1,5 +1,5 @@
 #Autoservicio :D
-
+# @version ^0.2.8
 #Estructura para guardar el nombre,los ingredientes y el precio del plato
 struct Comida:
     nombre : String[10]
@@ -9,7 +9,7 @@ struct Comida:
 
     
 #Variable para almacenar la direccion de la empresa
-empresa: address
+empresa: public(address)
 #Diccionario para asignar a cada numero un plato
 carta : public(HashMap[uint256,Comida])
 #variables para añadir un nuevo plato o quitarle
@@ -20,13 +20,13 @@ indiceborrar: uint256
 #Variable para almacenar la comanda de lo pedido
 comanda:HashMap[String[10],uint256]
 #Tiempo para pagar
-tiempo_pago: uint256
+tiempo_pago: public(uint256)
 #Limite de tiempo para pagar
 tiempo_tope: uint256
 #Variable para acumular el valor de los platos pedidos
 preciototal: uint256
 #Direccion del cliente
-cliente:address
+cliente:public(address)
 #Booleano para saber si seha pagado la cuenta o no
 pagado : bool
 
@@ -43,7 +43,7 @@ def __init__(plato: String[10],ingredientes:String[30],_precio:uint256,tiempopag
 #Funcion para añadir un nuevo plato, toma de argumentos el nombre, la descripcion y el precio
 @external
 def anadir_plato(plato: String[10],ingredientes:String[30],_precio:uint256):
-    assert msg.sender == self.empresa
+    assert msg.sender == self.empresa,"Empresa"
     if self.indicelibre > 0:
         self.carta[self.indice_libre[self.indicelibre]] = Comida({nombre:plato,descripcion:ingredientes,precio:_precio})
         self.indicelibre -= 1
@@ -54,8 +54,8 @@ def anadir_plato(plato: String[10],ingredientes:String[30],_precio:uint256):
 #Funcion para quitar un plato, toma como argumento el numeor asociado al plato
 @external
 def quitar_plato(numero: uint256):
-    assert numero < self.indice
-    assert msg.sender == self.empresa
+    assert numero < self.indice,"Numero correcto"
+    assert msg.sender == self.empresa,"Empresa"
     self.carta[numero] = empty(Comida)
     self.indice_libre[self.indicelibre] = numero
     self.indicelibre += 1
@@ -74,8 +74,8 @@ def pedir(numero: uint256, terminado: bool):
 @payable
 @external
 def pagarcuenta():
-    assert self.cliente == msg.sender
-    assert msg.value == self.preciototal
+    assert self.cliente == msg.sender,"Cliente"
+    assert msg.value == self.preciototal,"Precio"
     if block.timestamp < self.tiempo_tope:
         send(self.empresa,msg.value)
         self.pagado = True
@@ -91,8 +91,8 @@ def pagarcuenta():
 #Funcion para quitar la comanda en el caso de que no pague el cliente
 @external
 def quitarcomanda():
-    assert self.empresa == msg.sender
-    assert not self.pagado
+    assert self.empresa == msg.sender,"Empresa"
+    assert not self.pagado,"Sin pagar"
     assert block.timestamp > self.tiempo_tope
     tope:uint256 = self.indiceborrar
     for i in range(tope,tope+20):
