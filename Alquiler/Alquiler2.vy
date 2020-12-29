@@ -105,3 +105,4 @@ def pagar():
     assert block.timestamp < self.tiempo_mensual
     assert msg.value > 0
     assert msg.value == self.mensualidad
+    self.pagada = True
