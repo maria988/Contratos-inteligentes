@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Contrato para alquilar una casa/piso
 
 #Creamos un evento para que queden registradas las transacciones mensuales.
@@ -34,7 +35,7 @@ llave: uint256
 #, le daría la fianza( por las molestias) (Se puede quitar en cualquier momento)
 @payable
 @external
-def __init__( _mensualidad: uint256, _tiempo: uint256, _tiempo_contrato: uint256,_clave: uint256):
+def __init__( _mensualidad: uint256, _tiempo: uint256, _tiempo_contrato: uint256,_llave: uint256):
     assert msg.value > 0
     assert _mensualidad > 0
     assert _tiempo > 0
@@ -43,16 +44,16 @@ def __init__( _mensualidad: uint256, _tiempo: uint256, _tiempo_contrato: uint256
     self.arrendador = msg.sender
     self.mensualidad = _mensualidad
     self.tiempo = _tiempo
+    self.llave = _llave
     self.tiempo_contrato = _tiempo_contrato
-    self.llave = _clave
+    
 
 #Funcion para alquilar la casa en caso de que no esté alquilada
 @payable    
 @external
-def alquilar(cantidad: uint256):
+def alquilar():
     assert not self.alquilada
-    assert msg.value == self.fianza + self.mensualidad
-    assert msg.value >= cantidad*(self.mensualidad+self.fianza)
+    assert msg.value == self.fianza + self.mensualidad, "Suficiente"
     self.arrendatario = msg.sender
     self.alquilada = True
     self.tiempo_mensual = block.timestamp + self.tiempo
@@ -104,4 +105,3 @@ def pagar():
     assert block.timestamp < self.tiempo_mensual
     assert msg.value > 0
     assert msg.value == self.mensualidad
-    self.pagada = True
