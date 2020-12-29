@@ -1,3 +1,5 @@
+# @version ^0.2.8
+
 #Contrato para alquilar una casa/piso
 
 #Creamos un evento para que queden registradas las transacciones mensuales.
