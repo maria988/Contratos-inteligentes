@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Alquiler de cajas fuertes/trasteros
 #Creamos un evento para que quede registrada la transaccion mensual
 event Transaccion:
@@ -19,6 +20,7 @@ struct Caja:
     pagada: bool
     llave: uint256
     dejar: bool
+    primera: bool
     
 #Direccion de la empresa    
 tienda: public(address)
@@ -31,8 +33,8 @@ tiempo_disfrute:public(uint256)
 #Diccionario que a cada caja le asigna todas las variables de la estructura Caja
 clientes: public(HashMap[uint256, Caja])
 indice: uint256
-fianza: uint256
-tiempo_pagar : uint256
+fianza: public(uint256)
+tiempo_pagar : public(uint256)
 #Cajas que hay totales
 cajas_totales: uint256
 indice_libres: uint256
@@ -61,7 +63,7 @@ def __init__(_cajas: uint256, _mensualidad: uint256, _tiempo_disfrute: uint256,_
 @external
 def alquilar():
     #Se revierte si todas las cajas estan ocupadas
-    assert self.cajas > 0
+    assert self.cajas > 0,"Suficientes cajas"
     #El ether mandado debe de ser igual que el valor de la mensualidad y la fianza
     assert msg.value == self.mensualidad + self.fianza
     #Inicialmente se reparten las cajas segun se vayan pidiendo
@@ -70,7 +72,7 @@ def alquilar():
         self.clientes[self.indice]=Caja({propietario: msg.sender,
                                          tdisfrute: block.timestamp + self.tiempo_disfrute, 
                                          ttope: block.timestamp + self.tiempo_disfrute + self.tiempo_pagar,
-                                         pagada: True,llave:0, dejar: False})
+                                         pagada: True,llave:1, dejar: False,primera:True})
         self.indice += 1
     #Si hay cajas y el indice es mayor que las cajas totales
     #Hay cajas sueltas disponibles
@@ -78,7 +80,7 @@ def alquilar():
         index: uint256 = self.cajaslibres [self.indice_libres - 1]
         self.clientes[index]=Caja({propietario: msg.sender,tdisfrute: block.timestamp + self.tiempo_disfrute, 
                                    ttope: block.timestamp + self.tiempo_disfrute + self.tiempo_pagar,
-                                   pagada: True,llave:0, dejar: False})
+                                   pagada: True,llave:1, dejar: False,primera:True})
         self.indice_libres -= 1
     self.cajas -= 1
     
@@ -90,6 +92,7 @@ def asignarllave(clave: uint256, ncaja: uint256):
     assert msg.sender == self.tienda
     assert ncaja < self.indice
     assert clave != 0
+    assert clave != 1
     self.clientes[ncaja].llave = clave
 
 #Funcion interna para saber si una persona no ha pagado y esta usando la caja
@@ -151,7 +154,7 @@ def cambio(ncaja:uint256):
     #Se comprueba que es un numero de caja valido
     assert ncaja <= self.cajas_totales
     #Se comprueba que el tiempo de uso es menor que el tiempo actual
-    assert self.clientes[ncaja].tdisfrute < block.timestamp
+    assert ((self.clientes[ncaja].tdisfrute < block.timestamp) or (self.clientes[ncaja].primera))
     #Si se ha pasado el tiempo tope de pago
     if self.clientes[ncaja].ttope < block.timestamp:
         #Si se ha pagado el mes pero no hay clave
@@ -185,7 +188,9 @@ def cambio(ncaja:uint256):
             log Transaccion(self.tienda,self.clientes[ncaja].propietario,self.mensualidad)
             log Clave(self.clientes[ncaja].propietario,self.tienda,self.clientes[ncaja].llave)
             self.clientes[ncaja].llave = 0
-      
+     
+
+
 #Funcion para que el cliente pague la mensualidad de la caja
 @payable
 @external
@@ -203,3 +208,4 @@ def dejarcaja(ncaja: uint256):
     assert msg.sender == self.clientes[ncaja].propietario
     assert self.clientes[ncaja].tdisfrute >= block.timestamp
     self.clientes[ncaja].dejar = True
+
