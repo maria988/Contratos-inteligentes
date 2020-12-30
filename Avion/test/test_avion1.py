@@ -60,5 +60,3 @@ def test_failed_transactions(avion1_contract, accounts):
     
     with brownie.reverts("No ha salido"):
         avion1_contract.asalido({'from': accounts[0]})
-    
-    
