@@ -1,4 +1,6 @@
-#Contrato para devolver parte del dinero del billete del aviÃ³n si este no sale a tiempo
+# @version ^0.2.8
+
+#Contrato para devolver parte del dinero del billete del avion si este no sale a tiempo
 
 #Creamos un evento para que quede registrado la devolucion del importe
 event Devolucion:
@@ -18,7 +20,7 @@ aerolinea: public(address)
 #Precio por billete
 precio: public(uint256)
 #Porcentaje a devolver por la aerolinea
-porc_a_devolver: public(decimal)
+porc_a_devolver: public(uint256)
 #Tiempo previsto de salida del avion
 tiempo_salida: public(uint256)
 #Tiempo real de salida del avion
@@ -33,24 +35,24 @@ clientes: public(HashMap[uint256,address])
 indice: uint256
 indice2: uint256
 #Ether a devolver
-dinero: uint256
+dinero: public(uint256)
 #booleano para saber si se le ha devuelto a todos los clientes el porcentaje.
 terminado: bool
 
 #Constructor del contrato
 @external
-def __init__(_asientos: uint256,_precio: uint256,_porc_a_devolver: decimal,_tiempo_salida: uint256):
+def __init__(_asientos: uint256,_precio: uint256,_porc_a_devolver: uint256,_tiempo_salida: uint256):
     #El contrato se crea si hay asientos, si el precio del billete es mayor que 0
     #y si el porcentaje esta entre 0 y 100
     assert _asientos > 0
     assert _precio > 0
-    assert _porc_a_devolver > 0.0
-    assert _porc_a_devolver <= 100.0
+    assert _porc_a_devolver > 0
+    assert _porc_a_devolver <= 100
     self.asientos = _asientos
     self.aerolinea = msg.sender
     self.precio = _precio
     self.porc_a_devolver =_porc_a_devolver
-    self.tiempo_salida = _tiempo_salida
+    self.tiempo_salida = block.timestamp + _tiempo_salida
 
 #Funcion del contrato para comprar billetes, como mucho se puden comprar 3 a la vez
 #Se accede a esta funcion y no se revierte si la cantidad solicitada esta entre 0 y
@@ -60,9 +62,9 @@ def __init__(_asientos: uint256,_precio: uint256,_porc_a_devolver: decimal,_tiem
 @external
 def comprar(cantidad:uint256):
     assert cantidad > 0
-    assert cantidad <4
-    assert cantidad <= self.asientos
-    assert msg.value >= cantidad*self.precio
+    assert cantidad <4,"Menos de 4"
+    assert cantidad <= self.asientos,"Suficientes asientos"
+    assert msg.value == cantidad*self.precio,"Precio exacto"
     self.clientes[self.indice]=msg.sender
     if cantidad > 1:
         self.clientes[self.indice+1]=msg.sender
@@ -77,32 +79,31 @@ def comprar(cantidad:uint256):
 @view
 @internal
 def _asalidoatiempo()-> bool:
-    return self.tiempo_salida > self.tiempo_reals
+    return self.tiempo_salida >= self.tiempo_reals
 
 #Funcion que se realiza si la direccion que la llama es la de la aerolinea
 #y si el viaje aun no ha salido
 @external
 def asalido():
-    assert not self.salido
-    assert msg.sender == self.aerolinea
+    assert not self.salido,"No ha salido"
+    assert msg.sender == self.aerolinea,"Aerolinea"
     self.salido = True
     self.tiempo_reals = block.timestamp
     #Si el viaje ha salido ha tiempo el importe a devlver es 0, en otro caso,
     #se calcula el dinero a devolver a los pasajeros
     if not self._asalidoatiempo():
-        cambio: decimal = convert(self.tiempo_reals - self.tiempo_salida ,decimal)
-        self.dinero = convert((cambio * self.porc_a_devolver)/100.0,uint256)
+        self.dinero = (self.precio * self.porc_a_devolver)/100
     
 #Funcion para devolver el dinero a los clientes si el viaje ha salido y no a tiempo      
 @external
 def devolucionalosclientes():
-    assert self.salido
+    assert self.salido,"Ha salido"
     if self._asalidoatiempo():
         self.terminado = True
     else:
         index: uint256 = self.indice2
         for i in range(index,index+20):
-            if i > self.indice:
+            if i >= self.indice:
                 index = self.indice
                 self.terminado = True
                 return
@@ -116,5 +117,3 @@ def devolucionalosclientes():
 def cobroempresa():
     assert self.terminado
     selfdestruct(self.aerolinea)
-
-
