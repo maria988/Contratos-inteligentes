@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Devolucion de parte del ether si el producto no llega a tiempo
 #Variacion: En vez de pagar en la construccion del contrato el vendedor, recibe el total menos el descuento
 #y el descuento le recibe, si llega a tiempo, cuando el vendedor recibe el articulo.
@@ -5,7 +6,7 @@
 event Devolucion:
     emisor: indexed(address)
     receptor: indexed(address)
-    dinero: uint256
+    devolver: uint256
     
 #Creamos el evento Compra para que quede registrado el ether que se pagó
 event Compra:
@@ -27,8 +28,10 @@ tiempo_envio: public(uint256)
 tiempo_recibir: public(uint256)
 
 #Variables que modifica e inicializa el comprador
-recibido: public(bool)
 comprador: public(address)
+
+#Booleano para saber si se ha comprado el prodcto
+comprado: public(bool)
 
 #Constructor del contrato
 @external
@@ -45,12 +48,14 @@ def __init__(_precio: uint256,_devolver: uint256,_tiempo_envio: uint256):
 @payable
 @external
 def comprar():
+    assert not self.comprado,"No se ha comprado"
     #No se compra si el valor del mensaje es distinto del precio
-    assert msg.value == self.precio
+    assert msg.value == self.precio,"Precio exacto"
     self.comprador = msg.sender
     #Queda registrada la compra aunque no se le envie 100% del ether al vendedor
     log Compra(msg.sender,self.empresa,self.precio)
     send(self.empresa, self.precio - self.devolver)
+    self.comprado = True
     self.tiempo_recibir = block.timestamp + self.tiempo_envio
 
 #Funcion que utiliza el comprador cuando ha recibido el producto
@@ -58,11 +63,8 @@ def comprar():
 #o regrese al comprador
 @external
 def frecibido():
-    #Si se ha recibido no se puede volver a llamar
-    assert not self.recibido
     #Solo el comprador la puede usar
-    assert msg.sender == self.comprador
-    self.recibido = True
+    assert msg.sender == self.comprador,"Comprador"
     #Comprueba si ha llegado a tiempo
     #Si no ha llegado se registra la devolucion de la parte correspondiente al comprador
     #y se destruye el contrato enviando el ether que habia al comprador
