@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Variacion que acumula puntos y por x puntos y litros gratis
 
 #Seleccionar un valor predeterminado o llenar el deposito
@@ -26,7 +27,7 @@ struct Puntos_litros:
 
 #Variables globales  
 empresa: public(address)
-maximo: uint256
+maximo: public(uint256)
 
 #Para cada tipo de gasolina almacena la estructura Combustibles
 gasolinera: public(HashMap[String[3],Combustibles])
@@ -45,7 +46,7 @@ puntos: public(uint256)
 litrosgratis: public(uint256)
 
 #Variable para pasar del valor gastado a puntos
-apuntos: uint256
+apuntos: public(uint256)
 
 #Constructor del comtrato, pone precio de cada tipo de combustible
 #los litros que hay de cada uno, el maximo de litros que puede haber
@@ -54,7 +55,7 @@ apuntos: uint256
 def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: uint256,_maximo: uint256,
              _litros95: uint256,_litros98: uint256,_litrosN: uint256,_litrosP: uint256,
              _p1: uint256,_p2: uint256,_p3: uint256,_p4: uint256,_p5: uint256,_p6: uint256,_p7: uint256,
-             _puntos:uint256,_lg:uint256):
+             _puntos:uint256,_lg:uint256,_apuntos: uint256 ):
     assert _precio95 > 0
     assert _precio98 > 0
     assert _precioN > 0
@@ -86,6 +87,7 @@ def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: u
     self.seleccion[7] = _p7
     self.puntos = _puntos
     self.litrosgratis = _lg
+    self.apuntos = _apuntos
 
 #Funcion externa que dado una String[3] te devuelve el precio del combustible
 @view
@@ -105,12 +107,11 @@ def bienescrito(nombre: String[3])-> bool:
 @payable
 @external
 def echargasolina(calle: uint256, comb: String[3],sel: uint256):
-    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso))
-    assert self.bienescrito(comb)
-    assert sel < 8
-    assert sel > 0
-    assert msg.value == self.seleccion[sel]
-    assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro
+    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso)),"No se estan usando"
+    assert self.bienescrito(comb),"Bien escrito"
+    assert (sel < 8 and sel >0),"Seleccion valida"
+    assert msg.value == self.seleccion[sel],"Precio valido"
+    assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro,"Hay litros suficientes"
     
     if (self.list_clientes[msg.sender].puntos != 1):
         if ((self.list_clientes[msg.sender].puntos >= self.puntos) or (self.list_clientes[msg.sender].puntos > 0)):
@@ -138,8 +139,8 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
 #en cualquier otro caso el dinero va a la gasolinera
 @external
 def parar(calle: uint256, _litros: uint256,lleno: bool):
-    assert self.surtidores[calle].uso
-    assert (self.surtidores[calle].tope == _litros or lleno)
+    assert self.surtidores[calle].uso,"El surtidor se esta usando"
+    assert (self.surtidores[calle].tope == _litros or lleno),"Esta lleno o tope"
     surti: Calles = self.surtidores[calle]
     surti.uso = False
     self.gasolinera[surti.combustible].litros -= _litros
@@ -163,39 +164,39 @@ def parar(calle: uint256, _litros: uint256,lleno: bool):
             self.list_clientes[surti.cliente].litros -= _litros
         else:
             send(self.empresa,self.surtidores[calle].pagado)
-    surti = empty(Calles)
-    
+    self.surtidores[calle] = empty(Calles)
     
 
 
 #Funcion para llenar los depositos de combustible
 @external
 def surtir(cantidad:uint256 ,comb: String[3]):
-    assert msg.sender == self.empresa
-    assert self.bienescrito(comb)
-    assert self.gasolinera[comb].litros + cantidad <= self.maximo
+    assert msg.sender == self.empresa,"Empresa"
+    assert self.bienescrito(comb),"Bien escrito"
+    assert self.gasolinera[comb].litros + cantidad <= self.maximo,"Entra"
     self.gasolinera[comb].litros += cantidad
 
 #Dado un String que es un tipo de combustible y el precio
 #cambiamos el precio del combustible
 @external
 def cambiar_precio(comb: String[3],precio: uint256):
-    assert msg.sender == self.empresa
-    assert self.gasolinera[comb].precio_litro != precio
-    assert precio > 0
-    assert self.bienescrito(comb)
+    assert msg.sender == self.empresa,"Empresa"
+    assert self.bienescrito(comb),"Bien escrito"
+    assert self.gasolinera[comb].precio_litro != precio,"Distinto precio"
+    assert precio > 0,"Positivo"
     self.gasolinera[comb].precio_litro = precio
 
 #Funcion para cambiar la cantidad de litros de la seleccion
 @external
 def cambiar_seleccion(num: uint256, cantidad: uint256):
-    assert self.empresa == msg.sender
+    assert self.empresa == msg.sender,"Empresa"
+    assert num > 0,"Positiva"
     self.seleccion[num]=cantidad
     
 #Funcion para ser cliente
 @external
 def nuevocliente():
-    self.list_clientes[msg.sender].puntos = 0
+    self.list_clientes[msg.sender].puntos = 1
     self.list_clientes[msg.sender].litros = 0
 
 #Funcion para dejar de ser cliente
