@@ -1,3 +1,4 @@
+# @version ^0.2.8
 #Seleccionar un valor predeterminado o llenar el deposito
 #En el caso del valor predeterminado no se devuelve el importe,
 #si es llenado se devuelve lo que no se haya echado
@@ -18,7 +19,7 @@ struct Calles:
 
 #Variables globales  
 empresa: public(address)
-maximo: uint256
+maximo: public(uint256)
 
 #Para cada tipo de gasolina almacena la estructura Combustibles
 gasolinera: public(HashMap[String[3],Combustibles])
@@ -70,6 +71,7 @@ def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: u
 @view
 @external
 def precio(comb: String[3])-> uint256:
+    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
     return self.gasolinera[comb].precio_litro
 
 #Funcion para almacenar el ether y los datos
@@ -77,12 +79,11 @@ def precio(comb: String[3])-> uint256:
 @payable
 @external
 def echargasolina(calle: uint256, comb: String[3],sel: uint256):
-    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso))
-    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
-    assert sel < 8
-    assert sel > 0
-    assert msg.value == self.seleccion[sel]
-    assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro
+    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso)),"No se estan usando"
+    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP"),"Bien escrito"
+    assert (sel < 8 and sel > 0),"Seleccion valida"
+    assert msg.value == self.seleccion[sel],"Precio valido"
+    assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro,"Hay litros suficientes"
     
     self.surtidores[calle] = Calles({uso:True,cliente: msg.sender,tope: self.seleccion[sel]/ self.gasolinera[comb].precio_litro,combustible:comb,pagado:msg.value,selec:sel})
 
@@ -91,8 +92,8 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
 #en cualquier otro caso el dinero va a la gasolinera    
 @external
 def parar(calle: uint256, litros: uint256,lleno: bool):
-    assert self.surtidores[calle].uso
-    assert (self.surtidores[calle].tope == litros or lleno)
+    assert self.surtidores[calle].uso,"El surtidor se esta usando"
+    assert (self.surtidores[calle].tope == litros or lleno),"Esta lleno o tope"
     self.surtidores[calle].uso = False
     self.gasolinera[self.surtidores[calle].combustible].litros -= litros
     if self.surtidores[calle].selec == 7:
@@ -106,23 +107,24 @@ def parar(calle: uint256, litros: uint256,lleno: bool):
 #Funcion para llenar los depositos de combustible
 @external
 def surtir(cantidad:uint256 ,comb: String[3]):
-    assert msg.sender == self.empresa
-    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
-    assert self.gasolinera[comb].litros + cantidad <= self.maximo
+    assert msg.sender == self.empresa,"Empresa"
+    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP"),"Bien escrito"
+    assert self.gasolinera[comb].litros + cantidad <= self.maximo,"Entra"
     self.gasolinera[comb].litros += cantidad
 
 #Dado un String que es un tipo de combustible y el precio
 #cambiamos el precio del combustible
 @external
 def cambiar_precio(comb: String[3],precio: uint256):
-    assert msg.sender == self.empresa
-    assert self.gasolinera[comb].precio_litro != precio
-    assert precio > 0
-    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
+    assert msg.sender == self.empresa,"Empresa"
+    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP"),"Bien escrito"
+    assert self.gasolinera[comb].precio_litro != precio,"Distinto precio"
+    assert precio > 0,"Positivo"
     self.gasolinera[comb].precio_litro = precio
 
 #Funcion para cambiar la cantidad de litros de la seleccion
 @external
 def cambiar_seleccion(num: uint256, cantidad: uint256):
-    assert self.empresa == msg.sender
+    assert self.empresa == msg.sender,"Empresa"
+    assert num > 0,"Positiva"
     self.seleccion[num]=cantidad
