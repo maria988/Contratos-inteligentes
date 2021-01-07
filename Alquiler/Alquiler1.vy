@@ -22,7 +22,7 @@ tiempo_mensual:public(uint256)
 #Booleano que muestra si está alquilada, la direccion del arrendatario y si se ha pagado el mes
 alquilada: public(bool)
 arrendatario: public(address)
-pagada: bool
+pagada: public(bool)
 #Constructor del contrato en el que el arrendador da la fianza del inmueble,
 #y en el caso de que eche al arrendatario sin haber terminado el contrato
 #, le daría la fianza( por las molestias) (Se puede quitar en cualquier momento)
@@ -44,11 +44,13 @@ def __init__( _mensualidad: uint256, _tiempo: uint256, _tiempo_contrato: uint256
 @payable    
 @external
 def alquilar():
-    assert not self.alquilada
-    assert msg.value == self.fianza + self.mensualidad
+    assert not self.alquilada,"No esta alquilada"
+    assert msg.value == self.fianza + self.mensualidad,"Valor exacto"
     self.arrendatario = msg.sender
     self.alquilada = True
     self.tiempo_mensual = block.timestamp + self.tiempo
+    self.tiempo_contrato += block.timestamp
+    self.alquilada = True
     #Se envia la mensualidad al arrendador y la fianza se queda en el deposito hasta que se termine el contrato
     send(self.arrendador,self.mensualidad)
     log Transaccion(self.arrendador,self.arrendatario,self.mensualidad)
@@ -57,7 +59,9 @@ def alquilar():
 # se ha de realizar despues de que se termine el tiempo mensual
 @external
 def cambio():
-    assert block.timestamp > self.tiempo_mensual
+    assert self.alquilada,"Alquilada"
+    assert block.timestamp > self.tiempo_mensual,"Plazo cumplido"
+    assert msg.sender == self.arrendador or msg.sender == self.arrendatario,"Arrendador o arrendatario"
     #Si el tiempo actual es mayor que el tiempo de contrato se devuelve la fianza y se destruye el contrato.
     if block.timestamp >= self.tiempo_contrato:
         send(self.arrendatario,self.fianza)
@@ -77,17 +81,17 @@ def cambio():
 @payable
 @external
 def pagar():
-    assert msg.sender == self.arrendatario
-    assert block.timestamp < self.tiempo_mensual
-    assert msg.value > 0
-    assert msg.value == self.mensualidad
+    assert self.alquilada,"Alquilada"
+    assert msg.sender == self.arrendatario,"Arrendatario"
+    assert block.timestamp <= self.tiempo_mensual,"Dentro del plazo"
+    assert msg.value == self.mensualidad,"Mensualidad"
     self.pagada = True
 
 #Funcion que solo se puede ejecutar cuando el arrendador la pida y destruye el contrato
 @external
 def eliminarcontrato():
-    assert msg.sender == self.arrendador
-    assert block.timestamp < self.tiempo_contrato
+    assert msg.sender == self.arrendador,"Arrendador"
+    assert block.timestamp < self.tiempo_contrato,"Dentro del tiempo del contrato"
     if self.alquilada :
         selfdestruct(self.arrendatario)
     else:
