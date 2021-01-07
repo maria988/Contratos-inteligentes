@@ -36,10 +36,11 @@ def test_failed_transactions(descuento1_contract, accounts):
         descuento1_contract.comprar({'from':accounts[1],'value':10})
     
     time.sleep(5)
-    with brownie.reverts("Precio minimo"):
-        descuento1_contract.comprar({'from':accounts[1],'value':5})
+    descuento1_contract.comprar({'from':accounts[3],'value':250}) 
+    with brownie.reverts("Hay stock suficiente"):
+        descuento1_contract.comprar({'from':accounts[3],'value':500})
         
-    descuento1_contract.comprar({'from':accounts[3],'value':500})
+    descuento1_contract.comprar({'from':accounts[3],'value':250})
     with brownie.reverts("Hay stock"):
         descuento1_contract.comprar({'from':accounts[3],'value':100})
     with brownie.reverts("Vendedor"):
