@@ -48,7 +48,6 @@ def _tiempodescuento()-> bool:
 def comprar():
     #Comprobamos que no se haya terminado el producto, en tal caso saldria de la funcion.
     assert self.stock > 0,"Hay stock"
-    assert msg.value >= self.pdescuento,"Precio minimo"
     #Asignamos el precio que tiene en este momento el articulo, el inicial o, si esta en el tiempo de descuento, el precio rebajado.
     precio: uint256 = self.precio
     if self._tiempodescuento():
@@ -57,7 +56,7 @@ def comprar():
     assert msg.value >= precio,"Precio adecuado"
     cantidad: uint256 = msg.value / precio
     #Si la cantidad pedida por el cliente es mayor que el stock que hay se revierte la transaccion
-    assert self.stock >= cantidad,"Hay stock"
+    assert self.stock >= cantidad,"Hay stock suficiente"
     self.stock -= cantidad
     #Se envia al vendedor el dinero total del pedido
     send(self.vendedor, cantidad * precio)
