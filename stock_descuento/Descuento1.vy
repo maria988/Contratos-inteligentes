@@ -1,3 +1,4 @@
+# @version ^0.2.8
 """
 Hay un stock de producto que se rebaja durante un determinado 
 periodo de tiempo.
@@ -46,16 +47,17 @@ def _tiempodescuento()-> bool:
 @payable
 def comprar():
     #Comprobamos que no se haya terminado el producto, en tal caso saldria de la funcion.
-    assert self.stock > 0
+    assert self.stock > 0,"Hay stock"
+    assert msg.value >= self.pdescuento,"Precio minimo"
     #Asignamos el precio que tiene en este momento el articulo, el inicial o, si esta en el tiempo de descuento, el precio rebajado.
     precio: uint256 = self.precio
     if self._tiempodescuento():
         precio = self.pdescuento
     #Si el valor del mensaje no es mayor que el precio se revierte la transaccion.
-    assert msg.value >= precio
+    assert msg.value >= precio,"Precio adecuado"
     cantidad: uint256 = msg.value / precio
     #Si la cantidad pedida por el cliente es mayor que el stock que hay se revierte la transaccion
-    assert self.stock > cantidad
+    assert self.stock >= cantidad,"Hay stock"
     self.stock -= cantidad
     #Se envia al vendedor el dinero total del pedido
     send(self.vendedor, cantidad * precio)
@@ -65,10 +67,5 @@ def comprar():
 #Comprueba de que quien invoca la función sea el vendedor.
 @external
 def terminar():
-    assert msg.sender == self.vendedor
+    assert msg.sender == self.vendedor,"Vendedor"
     selfdestruct(self.vendedor)
-
-
-
-
-
