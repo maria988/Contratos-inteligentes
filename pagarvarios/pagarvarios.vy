@@ -1,10 +1,13 @@
+# @version ^0.2.8
 #Pagar una cuenta entre varias personas
 
 #Variable spara saber la direccion de la empresa y el precio del producto/cuenta
+#No se devuelve el importe
+
 empresa: public(address)
-precio:uint256
+precio: public(uint256)
 #Booleano para saber si se ha pagado en su totalidad el producto/cuenta
-pagado: bool
+pagado: public(bool)
 #Un diccionario en el que se asigna lo que ha pagado cada persona
 yapagado: public(HashMap[address,uint256])
 
@@ -18,7 +21,8 @@ def __init__(_precio: uint256):
 @payable
 @external
 def pagar(empresa: address):
-    assert self.empresa == empresa
+    assert self.empresa == empresa,"Empresa"
+    assert msg.sender != self.empresa,"Cliente"
     if self.yapagado[msg.sender] == 1:
         self.yapagado[msg.sender] = msg.value
     else:
@@ -31,6 +35,6 @@ def pagar(empresa: address):
 #Se ha recibido o se ha realizado el servicio requerido       
 @external
 def producto():
-    assert self.pagado
-    assert self.yapagado[msg.sender] != 1
+    assert self.pagado,"Pagado"
+    assert self.yapagado[msg.sender] != 0,"Ha pagado"
     selfdestruct(self.empresa)
