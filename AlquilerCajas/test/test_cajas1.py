@@ -2,13 +2,13 @@
 import pytest
 
 import brownie
-
+import time
 CAJAS = 2
 INITIAL_VALUE = 100
 MENS = 20
-TIEMPO_DISFRUTE = 30
+TIEMPO_DISFRUTE = 5
 
-TIEMPO_PAGAR = 10
+TIEMPO_PAGAR = 3
 FIANZA = 10
 
 @pytest.fixture
@@ -49,10 +49,85 @@ def test_events(cajas1_contract, accounts):
 
 
 def test_failed_transactions(cajas1_contract, accounts):
-    # Try to set the storage to a negative amount
+    
+    with brownie.reverts("Valor exacto"):
+        cajas1_contract.alquilar( {"from": accounts[4],'value':10})
+        
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.asignarllave(0,0,{"from": accounts[4]})  
+    
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.tqpagar(0, {"from": accounts[4]})
+    
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.tiempoqueda(0,{"from": accounts[4]})
+    
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.cambio(0,{"from": accounts[4]})
+    
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.pagar(0,{"from": accounts[4],'value':10})
+    
+    with brownie.reverts("Caja asignada"):
+        cajas1_contract.dejarcaja(0,{"from": accounts[4]})
+        
     cajas1_contract.alquilar({'from': accounts[3],'value':30})
+    
+    with brownie.reverts("Tienda"):
+        cajas1_contract.asignarllave(0,0, {"from": accounts[4]})
+    
+    with brownie.reverts("Clave valida"):
+        cajas1_contract.asignarllave(0,0, {"from": accounts[0]})
+    
+    with brownie.reverts("Propietario"):
+        cajas1_contract.pagar(0,{"from": accounts[4],'value':10})
+        
+    
+    
+    cajas1_contract.asignarllave(32,0,{"from": accounts[0]})
+    cajas1_contract.cambio(0,{"from": accounts[0]})
+    
+    with brownie.reverts("Valor exacto"):
+        cajas1_contract.pagar(0,{"from": accounts[3],'value':10})
+    
+    cajas1_contract.pagar(0,{"from": accounts[3],'value':20})
+    
+    with brownie.reverts("No pagada"):
+        cajas1_contract.pagar(0,{"from": accounts[3],'value':20})
+        
+    with brownie.reverts("Propietario"):
+        cajas1_contract.dejarcaja(0,{"from": accounts[4]})
+    
+    with brownie.reverts("Propietario o tienda"):
+        cajas1_contract.tqpagar(0, {"from": accounts[4]})
+        
+    with brownie.reverts("Propietario o tienda"):
+        cajas1_contract.tiempoqueda(0,{"from": accounts[4]})
+    
+    with brownie.reverts("Propietario o tienda"):
+        cajas1_contract.cambio(0,{"from": accounts[4]}) 
+        
     cajas1_contract.alquilar({'from': accounts[1],'value':30})
+    cajas1_contract.asignarllave(32,1,{"from": accounts[0]})
+    cajas1_contract.cambio(1,{"from": accounts[0]})
+    
     with brownie.reverts("Suficientes cajas"):
         cajas1_contract.alquilar( {"from": accounts[4],'value':30})
-
     
+    with brownie.reverts("Posibilidades de llamada"):
+        cajas1_contract.cambio(1,{"from": accounts[0]})
+        
+    time.sleep(6)
+    with brownie.reverts("Dentro de tiempo"):
+        cajas1_contract.asignarllave(0,0, {"from": accounts[0]})
+        
+    with brownie.reverts("Dentro de tiempo"):
+        cajas1_contract.tiempoqueda(0,{"from": accounts[0]})
+    
+        
+    with brownie.reverts("Dentro de tiempo"):
+        cajas1_contract.dejarcaja(0,{"from": accounts[3]})
+        
+        
+    with brownie.reverts("Dentro de tiempo"):
+        cajas1_contract.pagar(1,{"from": accounts[1],'value':20})
