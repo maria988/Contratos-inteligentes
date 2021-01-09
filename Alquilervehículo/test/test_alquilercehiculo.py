@@ -2,7 +2,7 @@
 import pytest
 
 import brownie
-
+import time
 PRECIO_UDT = 2
 PRECIO_INICIO = 2
 
@@ -31,11 +31,18 @@ def test_failed_transactions(alqvehiculo_contract, accounts):
         alqvehiculo_contract.alquilar({'from': accounts[2],'value':0})
     
     alqvehiculo_contract.alquilar({'from':accounts[2],'value':50})
+    
     with brownie.reverts("Empresa"):
         alqvehiculo_contract.fin_viaje({'from': accounts[2]})
     
+    with brownie.reverts("Supera el tope"):
+        alqvehiculo_contract.fin_viaje({'from': accounts[0]})
+        
     with brownie.reverts("Persona"):
         alqvehiculo_contract.dejar({'from': accounts[0]})
+    
+    with brownie.reverts("No usado"):
+        alqvehiculo_contract.alquilar({'from': accounts[1],'value':50})
         
     alqvehiculo_contract.dejar({'from':accounts[2]})
     
@@ -45,3 +52,7 @@ def test_failed_transactions(alqvehiculo_contract, accounts):
     with brownie.reverts("En uso"):
         alqvehiculo_contract.dejar({'from': accounts[1]})
         
+    alqvehiculo_contract.alquilar({'from':accounts[2],'value':4})
+    time.sleep(4)
+    with brownie.reverts("Dentro del tope"):
+        alqvehiculo_contract.dejar({'from': accounts[2]})
