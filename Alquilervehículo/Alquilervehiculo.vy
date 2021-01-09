@@ -1,6 +1,6 @@
-#Alquiler de una bicicleta/vehículo por tiempo
 # @version ^0.2.8
 
+#Alquiler de una bicicleta/vehículo por tiempo
 #Precio por unidad de tiempo
 precio_udt: public(uint256)
 #Direccion de la empresa
@@ -28,7 +28,7 @@ def __init__(_precio_udt: uint256, _precio_inicio: uint256):
 @external
 def alquilar():
     assert msg.value > self.precio_inicio, "Suficiente"
-    assert not self.usado
+    assert not self.usado,"No usado"
     self.tiempo_uso = block.timestamp + (msg.value/self.precio_udt)
     self.usado = True
     self.persona = msg.sender
@@ -40,7 +40,7 @@ def alquilar():
 def fin_viaje():
     assert self.usado,"En uso"
     assert self.empresa == msg.sender,"Empresa"
-    assert block.timestamp > self.tiempo_uso
+    assert block.timestamp > self.tiempo_uso,"Supera el tope"
     self.usado = False
     send(self.empresa,self.balance)
 
@@ -50,7 +50,8 @@ def fin_viaje():
 def dejar():
     assert self.usado,"En uso"
     assert msg.sender == self.persona,"Persona"
-    assert block.timestamp <= self.tiempo_uso
+    assert block.timestamp <= self.tiempo_uso,"Dentro del tope"
     self.usado = False
     send(self.persona, (self.tiempo_uso - block.timestamp)*self.precio_udt)
     send(self.empresa,self.balance)
+    
