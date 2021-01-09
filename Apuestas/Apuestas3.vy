@@ -26,7 +26,8 @@ sigindice : uint256
 invertido: bool
 todos: bool
 
-
+#Boolenao para saber si se ha introducido los puntos de cada equipo
+apuntados:bool
 
 
 #Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
@@ -75,7 +76,7 @@ def mitad():
 #Funcion dar a los apostantes el ether ganado
 @external
 def devolver():
-    assert block.timestamp > self.termina,"Despues de terminar"
+    assert self.apuntados,"Apuntados"
     assert self.casa == msg.sender,"Casa"
     assert self.invertido,"Ha invertido"
     nive:uint256 = self.sigindice
@@ -96,7 +97,8 @@ def devolver():
 def ganadores(_eq1: uint256, _eq2: uint256):
     assert msg.sender == self.casa,"Casa"
     assert block.timestamp > self.termina,"Despues de terminar"
-    assert _eq1 >= 0 and _eq2 >= 0
+    assert not self.apuntados,"No apuntados"
+    self.apuntados = True
     self.pequipo1 = _eq1
     self.pequipo2 = _eq2
     
@@ -112,21 +114,22 @@ def terminado()-> bool:
 def empezado() -> bool:
     return block.timestamp > self.empieza
 
-#Funcion externa que devuelve un uint256, que es el ether ganado
+#Funcion externa que devuelve un uint256, que es el ether que se puede ganar
 @view
 @external
 def ganar(apos:Juego)-> uint256:
-    assert block.timestamp > self.termina,"Despues de terminar"
-    if (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2):
-        return apos.apuesta + (apos.apuesta/2) 
-    else:
-        return 0
+    return apos.apuesta + (apos.apuesta/2) 
 
 #Funcion externa que devuelve un booleano para saber si se ha acertado con la jugada o no
 @view
 @external
-def ganado(apos: Juego)-> bool:
-    return (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
+def ganado(apos: Juego)-> uint256:
+    assert self.apuntados,"Apuntados"
+    valor: uint256 = 0
+    if (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2):
+        valor = apos.apuesta + (apos.apuesta/2)
+    return valor
+
 
 #Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
 @external
