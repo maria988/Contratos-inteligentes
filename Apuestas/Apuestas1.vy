@@ -38,7 +38,7 @@ def __init__( tiempo_inicio: uint256,duracion: uint256):
 @external
 @payable
 def apostar(eq1: int128,eq2: int128):
-    assert block.timestamp < self.empieza
+    assert block.timestamp < self.empieza,"Antes de empezar"
     assert msg.sender != self.casa,"Jugador"
     assert msg.value > 0,"Apuesta positiva"
     nfi: int128 = self.ni
@@ -50,9 +50,9 @@ def apostar(eq1: int128,eq2: int128):
 @payable
 @external
 def mitad():
-    assert block.timestamp > self.empieza
-    assert self.casa == msg.sender
-    assert msg.value + self.inicial  >= ((self.balance - self.inicial -msg.value) / 2)
+    assert block.timestamp > self.empieza,"Despues de empezar"
+    assert self.casa == msg.sender,"Casa"
+    assert msg.value + self.inicial  >= ((self.balance - self.inicial -msg.value) / 2),"Valor suficiente"
     self.invertido = True
 
 
@@ -60,13 +60,13 @@ def mitad():
 #que son la puntuacion de cada equipo
 @external
 def devolver(_eq1:int128, _eq2:int128):
-    assert block.timestamp > self.termina
-    assert self.casa == msg.sender
-    assert self.invertido
-    assert _eq1 >= 0 and _eq2 >= 0
+    assert block.timestamp > self.termina,"Despues de terminar"
+    assert self.casa == msg.sender,"Casa"
+    assert self.invertido,"Ha invertido"
+    assert _eq1 >= 0 and _eq2 >= 0,"Valores positivos o 0"
     nive:int128 = self.niv
     for i in range (nive,nive+30):
-        if i > self.ni:
+        if i >= self.ni:
             nive = self.ni
             self.todos = True
             return
@@ -80,5 +80,5 @@ def devolver(_eq1:int128, _eq2:int128):
 #Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa
 @external
 def finalizacion():
-    assert self.todos
+    assert self.todos,"Se han devuelto a todos"
     selfdestruct(self.casa)
