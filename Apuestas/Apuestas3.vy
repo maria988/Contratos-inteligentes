@@ -28,6 +28,7 @@ todos: bool
 
 
 
+
 #Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
 #y que el ether enviado por la casa de apuestas se mayor que cero.
 @payable
@@ -45,7 +46,7 @@ def __init__( tiempo_inicio: uint256,duracion: uint256):
 @external
 @payable
 def apostar(eq1: uint256,eq2: uint256):
-    assert not block.timestamp >self.empieza
+    assert block.timestamp <= self.empieza,"Antes de empezar"
     assert msg.sender != self.casa,"Jugador"
     assert msg.value > 0 ,"Apuesta positiva"
     nfi: uint256 = self.indice
@@ -56,7 +57,8 @@ def apostar(eq1: uint256,eq2: uint256):
 @view
 @external
 def necesario()-> uint256:
-    assert msg.sender == self.casa
+    assert msg.sender == self.casa,"Casa"
+    assert  block.timestamp > self.empieza,"Despues de empezar"
     return (self.balance - self.inicial) / 2
 
 #Funcion para que la casa de apuestas introducza la mitad de ether del ether recibido.
@@ -64,18 +66,18 @@ def necesario()-> uint256:
 @payable
 @external
 def mitad():
-    assert block.timestamp > self.empieza
-    assert self.casa == msg.sender
-    assert msg.value + self.inicial  >= (self.balance - self.inicial - msg.value) / 2
+    assert block.timestamp > self.empieza,"Despues de empezar"
+    assert self.casa == msg.sender,"Casa"
+    assert msg.value + self.inicial  >= ((self.balance - self.inicial -msg.value) / 2),"Valor suficiente"
     self.invertido = True
     
 
 #Funcion dar a los apostantes el ether ganado
 @external
 def devolver():
-    assert block.timestamp > self.termina
-    assert self.casa == msg.sender
-    assert self.invertido
+    assert block.timestamp > self.termina,"Despues de terminar"
+    assert self.casa == msg.sender,"Casa"
+    assert self.invertido,"Ha invertido"
     nive:uint256 = self.sigindice
     for i in range (nive,nive+30):
         if i > self.indice:
@@ -92,8 +94,8 @@ def devolver():
 #Funcion para asignar a las variables globales la puntuacion de cada equipo
 @external
 def ganadores(_eq1: uint256, _eq2: uint256):
-    assert msg.sender == self.casa
-    assert block.timestamp > self.termina
+    assert msg.sender == self.casa,"Casa"
+    assert block.timestamp > self.termina,"Despues de terminar"
     assert _eq1 >= 0 and _eq2 >= 0
     self.pequipo1 = _eq1
     self.pequipo2 = _eq2
@@ -108,13 +110,13 @@ def terminado()-> bool:
 @view
 @external
 def empezado() -> bool:
-    return block.timestamp >self.empieza
+    return block.timestamp > self.empieza
 
 #Funcion externa que devuelve un uint256, que es el ether ganado
 @view
 @external
 def ganar(apos:Juego)-> uint256:
-    assert block.timestamp > self.termina
+    assert block.timestamp > self.termina,"Despues de terminar"
     if (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2):
         return apos.apuesta + (apos.apuesta/2) 
     else:
@@ -129,5 +131,5 @@ def ganado(apos: Juego)-> bool:
 #Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
 @external
 def finalizacion():
-    assert self.todos
+    assert self.todos,"Se han devuelto a todos"
     selfdestruct(self.casa)
