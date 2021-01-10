@@ -26,6 +26,9 @@ sigindice : uint256
 invertido: bool
 todos: bool
 
+#Boolenao para saber si se ha introducido los puntos de cada equipo
+apuntados:bool
+
 #Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
 #y que el ether enviado por la casa de apuestas se mayor que cero.
 @payable
@@ -72,23 +75,23 @@ def _ganar(apos: Juego)-> uint256:
 @view
 @internal
 def _ganado(apos: Juego)-> bool:
-    return (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
+    valor: uint256 = 0
+    return(apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
+     
 
 #Funcion externa que devuelve un booleano para saber si se ha acertado con la jugada o no
 @view
 @external
 def ganado(apos: Juego)-> bool:
+    assert self.apuntados,"Apuntados"
     return self._ganado(apos)
 
 #Funcion externa que devuelve un uint256, que es el ether ganado
 @view
 @external
 def ganar(apos: Juego)-> uint256:
-    assert self._terminado()
-    if self._ganado(apos):
-        return self._ganar(apos)
-    else:
-        return 0
+    return self._ganar(apos)
+
 #Funcion interna que devuelve la cantidad de ether que tiene que introducir la casa
 @view
 @internal
@@ -99,7 +102,8 @@ def _mitadapuestas(_valor: uint256) -> uint256:
 @view
 @external
 def necesario()-> uint256:
-    assert msg.sender == self.casa
+    assert msg.sender == self.casa,"Casa"
+    assert  self._empezado(),"Despues de empezar"
     return self._mitadapuestas(0)
 
 #Funcion externa para que cada jugador apueste.
@@ -107,7 +111,7 @@ def necesario()-> uint256:
 @external
 @payable
 def apostar(eq1: uint256,eq2: uint256):
-    assert not self._empezado()
+    assert not self._empezado(),"Antes de empezar"
     assert msg.sender != self.casa,"Jugador"
     assert msg.value > 0 ,"Apuesta positiva"
     nfi: uint256 = self.indice
@@ -120,21 +124,21 @@ def apostar(eq1: uint256,eq2: uint256):
 @payable
 @external
 def mitad():
-    assert self._empezado()
-    assert self.casa == msg.sender
-    assert msg.value + self.inicial >= self._mitadapuestas(msg.value)
+    assert self._empezado(),"Despues de empezar"
+    assert self.casa == msg.sender,"Casa"
+    assert msg.value + self.inicial >= self._mitadapuestas(msg.value),"Valor suficiente"
     self.invertido = True
     
 
 #Funcion dar a los apostantes el ether ganado
 @external
 def devolver():
-    assert self._terminado()
-    assert self.casa == msg.sender
-    assert self.invertido
+    assert self.apuntados,"Apuntados"
+    assert self.casa == msg.sender,"Casa"
+    assert self.invertido,"Ha invertido"
     nive:uint256 = self.sigindice
     for i in range (nive,nive+30):
-        if i > self.indice:
+        if i >= self.indice:
             nive = self.indice
             self.todos = True
             return
@@ -148,9 +152,10 @@ def devolver():
 #Funcion para asignar a las variables globales la puntuacion de cada equipo
 @external
 def ganadores(_eq1: uint256, _eq2: uint256):
-    assert msg.sender == self.casa
-    assert self._terminado()
-    assert _eq1 >= 0 and _eq2 >= 0
+    assert msg.sender == self.casa,"Casa"
+    assert self._terminado(),"Despues de terminar"
+    assert not self.apuntados,"No apuntados"
+    self.apuntados = True
     self.pequipo1 = _eq1
     self.pequipo2 = _eq2
     
@@ -158,5 +163,5 @@ def ganadores(_eq1: uint256, _eq2: uint256):
 #Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
 @external
 def finalizacion():
-    assert self.todos
+    assert self.todos,"Se han devuelto a todos"
     selfdestruct(self.casa)
