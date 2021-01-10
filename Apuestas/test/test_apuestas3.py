@@ -31,8 +31,8 @@ def test_uso(apuestas3_contract,accounts):
     time.sleep(3)
     apuestas3_contract.ganadores(1,1,{'from':accounts[0]})
     
-    assert apuestas3_contract.ganado((accounts[4],1,1,2),{'from':accounts[4]}) == 3
-    assert apuestas3_contract.ganado((accounts[3],1,0,6),{'from':accounts[3]}) == 0
+    assert apuestas3_contract.ganado((accounts[4],1,1,2),{'from':accounts[4]})
+    assert not apuestas3_contract.ganado((accounts[3],1,0,6),{'from':accounts[3]}) 
     apuestas3_contract.devolver({'from':accounts[0]})
     assert apuestas3_contract.balance() == 24
     apuestas3_contract.finalizacion({'from':accounts[0]})
