@@ -123,12 +123,9 @@ def ganar(apos:Juego)-> uint256:
 #Funcion externa que devuelve un booleano para saber si se ha acertado con la jugada o no
 @view
 @external
-def ganado(apos: Juego)-> uint256:
+def ganado(apos: Juego)-> bool:
     assert self.apuntados,"Apuntados"
-    valor: uint256 = 0
-    if (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2):
-        valor = apos.apuesta + (apos.apuesta/2)
-    return valor
+    return (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
 
 
 #Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
