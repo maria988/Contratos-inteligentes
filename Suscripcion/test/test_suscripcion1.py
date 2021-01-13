@@ -9,8 +9,8 @@ PERIODO = 5
 
 
 @pytest.fixture
-def suscripcion1_contract(suscripcion, accounts):
-    yield suscripcion.deploy(CUOTA,PERIODO,{'from': accounts[0]})
+def suscripcion1_contract(suscripcion1, accounts):
+    yield suscripcion1.deploy(CUOTA,PERIODO,{'from': accounts[0]})
 
 def test_inicial(suscripcion1_contract,accounts):
     assert suscripcion1_contract.empresa() == accounts[0]
