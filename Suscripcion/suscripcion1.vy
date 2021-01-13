@@ -62,15 +62,15 @@ def __init__(_cuota: uint256,_periodo: uint256):
 @payable
 @external
 def darse_de_alta():
-   assert not self.registrado[msg.sender],"No registrado"
+   assert not self.registrado[msg.sender].reg,"No registrado"
    assert msg.value >= self.cuota,"Valor suficiente"
    index: uint256 = self.indi
-   self.registrado[msg.sender] = True
+   self.registrado[msg.sender] .reg= True
    if self.indilibres > 0:
-       self.numero[msg.sender] = self.libres[self.indi]
+       self.registrado[msg.sender].num = self.libres[self.indi]
        self.indilibres -= 1
    else:
-       self.numero[msg.sender]= self.indice
+       self.registrado[msg.sender].num = self.indice
        index = self.indice
        self.indice += 1
    log Pagado(msg.sender,self.cuota)
@@ -79,12 +79,11 @@ def darse_de_alta():
 #Funcion para darse de baja en la suscripcion
 @external
 def darse_de_baja():
-    assert self.registrado[msg.sender],"Registrado"
-    send(msg.sender,self.clientes[self.numero[msg.sender]].acumulado)
-    self.libres[self.indilibres]= self.numero[msg.sender]
-    self.clientes[self.numero[msg.sender]] = empty(Subcriptor)
-    self.registrado[msg.sender] = False
-    self.numero[msg.sender]= empty(uint256)
+    assert self.registrado[msg.sender].reg,"Registrado"
+    send(msg.sender,self.clientes[self.registrado[msg.sender].num].acumulado)
+    self.libres[self.indilibres]= self.registrado[msg.sender].num
+    self.clientes[self.registrado[msg.sender].num] = empty(Subcriptor)
+    self.registrado[msg.sender] = empty(BoolNum)
     self.indilibres += 1
     
     
@@ -92,39 +91,39 @@ def darse_de_baja():
 @payable
 @external
 def pagar():
-    assert self.registrado[msg.sender],"Registrado"
-    assert msg.value + self.clientes[self.numero[msg.sender]].acumulado >= self.cuota,"Valor suficiente"
-    assert not self.clientes[self.numero[msg.sender]].pagado,"No ha pagado"
+    assert self.registrado[msg.sender].reg,"Registrado"
+    assert msg.value + self.clientes[self.registrado[msg.sender].num].acumulado >= self.cuota,"Valor suficiente"
+    assert not self.clientes[self.registrado[msg.sender].num].pagado,"No ha pagado"
     if msg.value == 0:
-        self.clientes[self.numero[msg.sender]].acumulado -= self.cuota
+        self.clientes[self.registrado[msg.sender].num].acumulado -= self.cuota
     else:
-        self.clientes[self.numero[msg.sender]].acumulado += msg.value - self.cuota
+        self.clientes[self.registrado[msg.sender].num].acumulado += msg.value - self.cuota
     log Pagado(msg.sender,self.cuota)
-    self.clientes[self.numero[msg.sender]].pagado = True
+    self.clientes[self.registrado[msg.sender].num].pagado = True
 
 #Funcion a la que accede la empresa cuando envia el elemento
 @external
 def enviar(cliente:address):
     assert self.empresa == msg.sender,"Empresa"
-    assert self.registrado[cliente],"Registrado"
-    assert self.clientes[self.numero[cliente]].pagado,"Pagado"
-    assert not self.clientes[self.numero[cliente]].enviado,"No enviado"
-    self.clientes[self.numero[cliente]].enviado = True
+    assert self.registrado[cliente].reg,"Registrado"
+    assert self.clientes[self.registrado[cliente].num].pagado,"Pagado"
+    assert not self.clientes[self.registrado[cliente].num].enviado,"No enviado"
+    self.clientes[self.registrado[cliente].num].enviado = True
 
 #Funcion que es llamada por el suscriptor para que quede registrado que no se ha recibido el elemento   
 @external
 def no_recibido():
-    assert self.registrado[msg.sender],"Registrado"
-    assert self.clientes[self.numero[msg.sender]].enviado,"Enviado"
+    assert self.registrado[msg.sender].reg,"Registrado"
+    assert self.clientes[self.registrado[msg.sender].num].enviado,"Enviado"
     assert block.timestamp > self.siguiente,"Tiempo superado"
     log Recibido(self.empresa,msg.sender,"No recibido")
 
 #Funcion que es llamada por el suscriptor para que quede registrado que se ha recibido el elemento
 @external
 def recibido():
-    assert self.registrado[msg.sender],"Registrado"
-    assert self.clientes[self.numero[msg.sender]].enviado,"Enviado"
-    self.clientes[self.numero[msg.sender]].recibido = True
+    assert self.registrado[msg.sender].reg,"Registrado"
+    assert self.clientes[self.registrado[msg.sender].num].enviado,"Enviado"
+    self.clientes[self.registrado[msg.sender].num].recibido = True
     log Recibido(self.empresa,msg.sender,"Recibido")
     if self.fallo:
         self.fallo = False
@@ -152,8 +151,7 @@ def comprobar():
                 elif not self.clientes[i].pagado :
                     send(msg.sender,self.clientes[i].acumulado)
                     self.libres[self.indi]= i
-                    self.registrado[self.clientes[i].cliente] = False
-                    self.numero[self.clientes[i].cliente] = empty(uint256)
+                    self.registrado[self.clientes[i].cliente] = empty(BoolNum)
                     self.indilibres += 1
                     self.clientes[i] = empty(Subcriptor)
                 else:
