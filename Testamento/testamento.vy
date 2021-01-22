@@ -120,4 +120,4 @@ def cobrar_herencia():
 @view
 @external
 def saber_herencia(_heredero: address)-> uint256:
-    return self.Herencia[_heredero].value
+    return self.Herencia[_heredero].valor
