@@ -37,6 +37,7 @@ def adoptar(_direccion: String[20],_telefono: String[9],_nombre: String[20],_ape
     self.tope = block.timestamp + self.tiempo_revision
     self.datos = Datos({nombre: _nombre, apellidos: _apellidos,direccion: _direccion,telefono: _telefono})
     send(self.protectora,self.tasas)
+    self.vacunado = True
     
 @external
 def vacunar(maltrato: bool, operaciones: bool,_chip:String[15]):
@@ -71,6 +72,7 @@ def ceder(_chip:String[15]):
     assert msg.sender == self.dueno,"Dueno"
     self.adoptado = False
     self.dueno = self.protectora
+    self.datos = empty(Datos)
     
 @external
 def dar_baja(_chip:String[15]):
