@@ -8,8 +8,8 @@ PENALIZACION = 100
 PRECIO = 200
 
 @pytest.fixture
-def llevartiempo_contract(llevaratiempo1, accounts):
-    yield llevaratiempo1.deploy(accounts[1],TIEMPO_ESTIMADO,PENALIZACION,{'from': accounts[0],'value':PRECIO})
+def llevartiempo_contract(llevaratiempo, accounts):
+    yield llevaratiempo.deploy(accounts[1],TIEMPO_ESTIMADO,PENALIZACION,{'from': accounts[0],'value':PRECIO})
 
 def test_inicial(llevartiempo_contract,accounts):
     assert llevartiempo_contract.empresa() == accounts[0]
