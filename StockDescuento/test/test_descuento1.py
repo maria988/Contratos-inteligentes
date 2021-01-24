@@ -9,8 +9,8 @@ INICIO = 3
 DURACION = 5
 PRECIODESCUENTO = 10
 @pytest.fixture
-def descuento1_contract(Descuento1, accounts):
-    yield Descuento1.deploy(STOCK,PRECIO,INICIO,DURACION,PRECIODESCUENTO,{'from': accounts[0]})
+def descuento1_contract(descuento1, accounts):
+    yield descuento1.deploy(STOCK,PRECIO,INICIO,DURACION,PRECIODESCUENTO,{'from': accounts[0]})
 
 def test_inicial(descuento1_contract,accounts):
     assert descuento1_contract.vendedor() == accounts[0]
