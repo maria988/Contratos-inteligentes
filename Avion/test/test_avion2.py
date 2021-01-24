@@ -12,8 +12,8 @@ TIEMPO_SALIDA = 1
 
 
 @pytest.fixture
-def avion2_contract(Avion2, accounts):
-    yield Avion2.deploy(ASIENTOS,PRECIO,PORC,TIEMPO_SALIDA,{'from': accounts[0]})
+def avion2_contract(avion2, accounts):
+    yield avion2.deploy(ASIENTOS,PRECIO,PORC,TIEMPO_SALIDA,{'from': accounts[0]})
 
 def test_inicial(avion2_contract,accounts):
     assert avion2_contract.asientos() == ASIENTOS
