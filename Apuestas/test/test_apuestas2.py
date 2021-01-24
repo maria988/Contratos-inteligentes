@@ -8,8 +8,8 @@ TIEMPO_INICIO = 5
 INITIAL_VALUE = 1
 
 @pytest.fixture
-def apuestas2_contract(Apuestas2, accounts):
-    yield Apuestas2.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
+def apuestas2_contract(apuestas2, accounts):
+    yield apuestas2.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_inicial(apuestas2_contract,accounts):
     assert apuestas2_contract.inicial() == INITIAL_VALUE
