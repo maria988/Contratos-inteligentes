@@ -7,8 +7,8 @@ PRECIO_UDT = 2
 PRECIO_INICIO = 2
 
 @pytest.fixture
-def alqvehiculo_contract(Alquilervehiculo, accounts):
-    yield Alquilervehiculo.deploy(PRECIO_UDT,PRECIO_INICIO,{'from': accounts[0]})
+def alqvehiculo_contract(alquilervehiculo, accounts):
+    yield alquilervehiculo.deploy(PRECIO_UDT,PRECIO_INICIO,{'from': accounts[0]})
 
 def test_inicial(alqvehiculo_contract,accounts):
     assert alqvehiculo_contract.precio_udt() == PRECIO_UDT
