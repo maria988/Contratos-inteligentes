@@ -10,8 +10,8 @@ TIEMPO_CONTRATO = 10
 CLAVE = 234
 
 @pytest.fixture
-def alquiler2_contract(Alquiler2, accounts):
-    yield Alquiler2.deploy(MENS,TIEMPO,TIEMPO_CONTRATO,CLAVE,{'from': accounts[0],'value':INITIAL_VALUE})
+def alquiler2_contract(alquiler2, accounts):
+    yield alquiler2.deploy(MENS,TIEMPO,TIEMPO_CONTRATO,CLAVE,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_inicial(alquiler2_contract,accounts):
     assert alquiler2_contract.fianza() == INITIAL_VALUE
