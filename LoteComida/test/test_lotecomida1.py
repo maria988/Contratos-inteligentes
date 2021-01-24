@@ -10,8 +10,8 @@ CANTIDAD = 3
 DURACION = 4
 
 @pytest.fixture
-def lote_comida1_contract(lote_comida1, accounts):
-    yield lote_comida1.deploy(LOTE,DURACION,PRECIO,CANTIDAD,{'from': accounts[0]})
+def lote_comida1_contract(lotecomida1, accounts):
+    yield lotecomida1.deploy(LOTE,DURACION,PRECIO,CANTIDAD,{'from': accounts[0]})
 
 def test_inicial(lote_comida1_contract,accounts):
     assert lote_comida1_contract.lote() == LOTE
