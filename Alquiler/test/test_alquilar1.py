@@ -9,8 +9,8 @@ TIEMPO = 3
 TIEMPO_CONTRATO = 10
 
 @pytest.fixture
-def alquiler1_contract(Alquiler1, accounts):
-    yield Alquiler1.deploy(MENSUALIDAD,TIEMPO,TIEMPO_CONTRATO,{'from': accounts[0],'value':INITIAL_VALUE})
+def alquiler1_contract(alquiler1, accounts):
+    yield alquiler1.deploy(MENSUALIDAD,TIEMPO,TIEMPO_CONTRATO,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_initial(alquiler1_contract,accounts):
     assert alquiler1_contract.fianza() == INITIAL_VALUE
