@@ -9,8 +9,8 @@ INITIAL_VALUE = 25
 
 
 @pytest.fixture
-def envio1_contract(Envioatiempo1, accounts):
-    yield Envioatiempo1.deploy(PRECIO,TIEMPO_ENVIO,{'from': accounts[0],'value':INITIAL_VALUE})
+def envio1_contract(envioatiempo1, accounts):
+    yield envioatiempo1.deploy(PRECIO,TIEMPO_ENVIO,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_inicial(envio1_contract,accounts):
     assert envio1_contract.empresa()==accounts[0]
