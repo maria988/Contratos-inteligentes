@@ -12,8 +12,8 @@ TIEMPO_PAGAR = 3
 FIANZA = 10
 
 @pytest.fixture
-def cajas1_contract(Cajas1, accounts):
-    yield Cajas1.deploy(CAJAS,MENS,TIEMPO_DISFRUTE,TIEMPO_PAGAR,FIANZA,{'from': accounts[0]})
+def cajas1_contract(cajas1, accounts):
+    yield cajas1.deploy(CAJAS,MENS,TIEMPO_DISFRUTE,TIEMPO_PAGAR,FIANZA,{'from': accounts[0]})
 
 def test_inicial(cajas1_contract,accounts):
     assert cajas1_contract.fianza() == FIANZA
