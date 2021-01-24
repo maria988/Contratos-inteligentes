@@ -9,8 +9,8 @@ DEVOLVER = 25
 
 
 @pytest.fixture
-def envio2_contract(Envioatiempo2, accounts):
-    yield Envioatiempo2.deploy(PRECIO,DEVOLVER,TIEMPO_ENVIO,{'from': accounts[0]})
+def envio2_contract(envioatiempo2, accounts):
+    yield envioatiempo2.deploy(PRECIO,DEVOLVER,TIEMPO_ENVIO,{'from': accounts[0]})
 
 def test_inicial(envio2_contract,accounts):
     assert envio2_contract.empresa()==accounts[0]
