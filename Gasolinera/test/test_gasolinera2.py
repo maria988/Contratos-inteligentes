@@ -18,8 +18,8 @@ SEL7 = 100
 MAXIMO = 1000
 
 @pytest.fixture
-def gasolinera2_contract(Gasolinera2, accounts):
-    yield Gasolinera2.deploy(PRECIO95,PRECIO98,PRECION,PRECIOP,MAXIMO,LITROS,LITROS2,LITROS,LITROS,SEL1,SEL2,SEL3,SEL4,SEL5,SEL6,SEL7,{'from': accounts[0]})
+def gasolinera2_contract(gasolinera2, accounts):
+    yield gasolinera2.deploy(PRECIO95,PRECIO98,PRECION,PRECIOP,MAXIMO,LITROS,LITROS2,LITROS,LITROS,SEL1,SEL2,SEL3,SEL4,SEL5,SEL6,SEL7,{'from': accounts[0]})
 
 def test_inicial(gasolinera2_contract,accounts):
     assert gasolinera2_contract.empresa()==accounts[0]
