@@ -17,8 +17,8 @@ APUNTOS = 10
 
 
 @pytest.fixture
-def cupones_contract(Cupones, accounts):
-    yield Cupones.deploy(PUNTOS1,DESCUENTO1,PUNTOS2,DESCUENTO2,PUNTOS3,DESCUENTO3,CUPON1,CUPON2,CUPON3,APUNTOS,{'from': accounts[0]})
+def cupones_contract(cupones, accounts):
+    yield cupones.deploy(PUNTOS1,DESCUENTO1,PUNTOS2,DESCUENTO2,PUNTOS3,DESCUENTO3,CUPON1,CUPON2,CUPON3,APUNTOS,{'from': accounts[0]})
 
 def test_inicial(cupones_contract,accounts):
     assert cupones_contract.empresa() == accounts[0]
