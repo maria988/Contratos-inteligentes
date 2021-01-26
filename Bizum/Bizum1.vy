@@ -1,3 +1,5 @@
+# @version ^0.2.8
+
 #Pagar o que te paguen. El contrato funciona como una cuenta recibe dinero,
 #pero se queda ahí y solo el titular puede enviar ether desde el contrato.
 
