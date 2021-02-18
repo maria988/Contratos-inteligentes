@@ -8,8 +8,8 @@ TIEMPO_INICIO = 5
 INITIAL_VALUE = 1
 
 @pytest.fixture
-def apuestas2_contract(apuestas2, accounts):
-    yield apuestas2.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
+def apuestas2_contract(Apuestas2, accounts):
+    yield Apuestas2.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_inicial(apuestas2_contract,accounts):
     assert apuestas2_contract.inicial() == INITIAL_VALUE
@@ -54,6 +54,3 @@ def test_failed_transactions(apuestas2_contract, accounts):
     
     with brownie.reverts("Valores positivos o 0"):
         apuestas2_contract.devolver(-1,1,{'from': accounts[0]})
-    
-    with brownie.reverts("Se han devuelto a todos"):
-        apuestas2_contract.finalizacion({'from': accounts[0]})
