@@ -136,5 +136,5 @@ def cambiar_precio(comb: String[3],precio: uint256):
 @external
 def cambiar_seleccion(num: uint256, cantidad: uint256):
     assert self.empresa == msg.sender,"Empresa"
-    assert num > 0,"Positiva"
+    assert num >= 0 and num <7,"En el rango"
     self.seleccion[num]=cantidad
