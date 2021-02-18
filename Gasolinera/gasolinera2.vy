@@ -25,10 +25,10 @@ maximo: public(uint256)
 gasolinera: public(HashMap[String[3],Combustibles])
 
 #para cada surtidor almacena la estructura Calles
-surtidores: public(HashMap[uint256,Calles])
+surtidores: public(Calles[2])
 
 #para cada seleccion almacena el precio de la seleccion
-seleccion: public(HashMap[uint256,uint256])
+seleccion: public(uint256[7])
 
 #Constructor del comtrato, pone precio de cada tipo de combustible
 #los litros que hay de cada uno, el maximo de litros que puede haber
@@ -59,19 +59,19 @@ def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: u
     self.gasolinera["DiN"] = Combustibles({litros: _litrosN,precio_litro: _precioN})
     self.gasolinera["DiP"] = Combustibles({litros: _litrosP,precio_litro: _precioP})
     self.maximo = _maximo
-    self.seleccion[1] = _p1
-    self.seleccion[2] = _p2
-    self.seleccion[3] = _p3
-    self.seleccion[4] = _p4
-    self.seleccion[5] = _p5
-    self.seleccion[6] = _p6
-    self.seleccion[7] = _p7
+    self.seleccion[0] = _p1
+    self.seleccion[1] = _p2
+    self.seleccion[2] = _p3
+    self.seleccion[3] = _p4
+    self.seleccion[4] = _p5
+    self.seleccion[5] = _p6
+    self.seleccion[6] = _p7
 
 #Funcion externa que dado una String[3] te devuelve el precio del combustible
 @view
 @external
 def precio(comb: String[3])-> uint256:
-    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP")
+    assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP"),"Bien escrito"
     return self.gasolinera[comb].precio_litro
 
 #Funcion para almacenar el ether y los datos
@@ -79,9 +79,9 @@ def precio(comb: String[3])-> uint256:
 @payable
 @external
 def echargasolina(calle: uint256, comb: String[3],sel: uint256):
-    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso)),"No se estan usando"
+    assert (calle == 0 and not (self.surtidores[0].uso)) or (calle == 1 and not (self.surtidores[1].uso)),"No se estan usando"
     assert (comb == "G95") or (comb == "G98") or (comb == "DiN") or (comb == "DiP"),"Bien escrito"
-    assert (sel < 8 and sel > 0),"Seleccion valida"
+    assert (sel < 7 and sel >= 0),"Seleccion valida"
     assert msg.value == self.seleccion[sel],"Precio valido"
     assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro,"Hay litros suficientes"
     
@@ -92,6 +92,7 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
 #en cualquier otro caso el dinero va a la gasolinera    
 @external
 def parar(calle: uint256, litros: uint256,lleno: bool):
+    assert calle == 0 or calle == 1,"Numero calle correcto"
     assert self.surtidores[calle].uso,"El surtidor se esta usando"
     assert (self.surtidores[calle].tope == litros or lleno),"Esta lleno o tope"
     self.surtidores[calle].uso = False
@@ -126,5 +127,5 @@ def cambiar_precio(comb: String[3],precio: uint256):
 @external
 def cambiar_seleccion(num: uint256, cantidad: uint256):
     assert self.empresa == msg.sender,"Empresa"
-    assert num > 0,"Positiva"
+    assert num >= 0 and num <7,"En el rango"
     self.seleccion[num]=cantidad
