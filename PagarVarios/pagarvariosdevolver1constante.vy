@@ -20,8 +20,8 @@ yapagado: public(HashMap[address,uint256])
 direcciones:HashMap[int128,address]
 indice: int128
 rec_indice: int128
-#limite de tiempo
-duracion : constant(uint256)= 2
+#Duración para el tope de tiempo
+duracion : constant(uint256)= 2 #Tiene este valor para realizar las pruebas y no esperar mucho tiempo
 limite :uint256
 #Constructor del contrato, en el que se establecen la direccion de la empresa y el precio a pagar
 @external
