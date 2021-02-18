@@ -137,7 +137,6 @@ def devolver():
     nive:uint256 = self.sigindice
     for i in range (nive,nive+30):
         if i >= self.indice:
-            nive = self.indice
             selfdestruct(self.casa)
         else:
             ganado: bool = False
