@@ -46,7 +46,7 @@ def test_comprobacion(gasolinera1_contract,accounts):
     assert gasolinera1_contract.precio("DiP",{'from':accounts[1]}) == PRECIOP
     
     gasolinera1_contract.echargasolina(1,"G95",0,{'from':accounts[1],'value':10})
-    gasolinera1_contract.parar(1,0,False,{'from':accounts[1]})
+    gasolinera1_contract.parar(1,1,False,{'from':accounts[1]})
     
     
 def test_failed_transactions(gasolinera1_contract, accounts):
