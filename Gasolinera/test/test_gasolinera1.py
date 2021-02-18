@@ -92,8 +92,8 @@ def test_failed_transactions(gasolinera1_contract, accounts):
     with brownie.reverts("Empresa"):
         gasolinera1_contract.cambiar_seleccion(1,40,{'from':accounts[1]})
     
-    with brownie.reverts("Positiva"):
-        gasolinera1_contract.cambiar_seleccion(0,40,{'from':accounts[0]})
+    with brownie.reverts("En el rango"):
+        gasolinera1_contract.cambiar_seleccion(9,40,{'from':accounts[0]})
        
     gasolinera1_contract.echargasolina(1,"G95",1,{'from':accounts[1],'value':20})
     
