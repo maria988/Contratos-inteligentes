@@ -29,13 +29,13 @@ def test_inicial(gasolinera2_contract,accounts):
     assert gasolinera2_contract.gasolinera("DiP") == (LITROS,PRECIOP)
     assert gasolinera2_contract.maximo() == MAXIMO
     
-    assert gasolinera2_contract.seleccion(1) == SEL1
-    assert gasolinera2_contract.seleccion(2) == SEL2
-    assert gasolinera2_contract.seleccion(3) == SEL3
-    assert gasolinera2_contract.seleccion(4) == SEL4
-    assert gasolinera2_contract.seleccion(5) == SEL5
-    assert gasolinera2_contract.seleccion(6) == SEL6
-    assert gasolinera2_contract.seleccion(7) == SEL7
+    assert gasolinera2_contract.seleccion(0) == SEL1
+    assert gasolinera2_contract.seleccion(1) == SEL2
+    assert gasolinera2_contract.seleccion(2) == SEL3
+    assert gasolinera2_contract.seleccion(3) == SEL4
+    assert gasolinera2_contract.seleccion(4) == SEL5
+    assert gasolinera2_contract.seleccion(5) == SEL6
+    assert gasolinera2_contract.seleccion(6) == SEL7
     
     
 
@@ -45,23 +45,26 @@ def test_comprovacion(gasolinera2_contract,accounts):
     assert gasolinera2_contract.precio("DiN",{'from':accounts[1]}) == PRECION
     assert gasolinera2_contract.precio("DiP",{'from':accounts[1]}) == PRECIOP
     
-    gasolinera2_contract.echargasolina(1,"G95",1,{'from':accounts[1],'value':10})
+    gasolinera2_contract.echargasolina(1,"G95",0,{'from':accounts[1],'value':10})
     gasolinera2_contract.parar(1,1,False,{'from':accounts[1]})
     
     
 def test_failed_transactions(gasolinera2_contract, accounts):
     with brownie.reverts("Bien escrito"):
-        gasolinera2_contract.echargasolina(1,"G58",1,{'from':accounts[1],'value':10})
+        gasolinera2_contract.echargasolina(1,"G58",0,{'from':accounts[1],'value':10})
     
     with brownie.reverts("Seleccion valida"):
         gasolinera2_contract.echargasolina(1,"G95",9,{'from':accounts[1],'value':10})
     
     with brownie.reverts("Precio valido"):
-        gasolinera2_contract.echargasolina(1,"G98",1,{'from':accounts[1],'value':18})
+        gasolinera2_contract.echargasolina(1,"G98",0,{'from':accounts[1],'value':18})
        
     with brownie.reverts("Hay litros suficientes"):
-        gasolinera2_contract.echargasolina(1,"G98",7,{'from':accounts[1],'value':100})
+        gasolinera2_contract.echargasolina(1,"G98",6,{'from':accounts[1],'value':100})
     
+    with brownie.reverts("Numero calle correcto"):
+        gasolinera2_contract.parar(2,10,True,{'from':accounts[1]})
+        
     with brownie.reverts("El surtidor se esta usando"):
         gasolinera2_contract.parar(1,10,True,{'from':accounts[1]})
     
@@ -89,13 +92,13 @@ def test_failed_transactions(gasolinera2_contract, accounts):
     with brownie.reverts("Empresa"):
         gasolinera2_contract.cambiar_seleccion(1,40,{'from':accounts[1]})
     
-    with brownie.reverts("Positiva"):
-        gasolinera2_contract.cambiar_seleccion(0,40,{'from':accounts[0]})
+    with brownie.reverts("En el rango"):
+        gasolinera2_contract.cambiar_seleccion(9,40,{'from':accounts[0]})
        
-    gasolinera2_contract.echargasolina(1,"G95",2,{'from':accounts[1],'value':20})
+    gasolinera2_contract.echargasolina(1,"G95",1,{'from':accounts[1],'value':20})
     
     with brownie.reverts("No se estan usando"):
-        gasolinera2_contract.echargasolina(1,"G95",1,{'from':accounts[1],'value':10})
+        gasolinera2_contract.echargasolina(1,"G95",0,{'from':accounts[1],'value':10})
     
     with brownie.reverts("Esta lleno o tope"):
         gasolinera2_contract.parar(1,1,False,{'from':accounts[1]})
