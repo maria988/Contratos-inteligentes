@@ -84,7 +84,7 @@ def devolver():
         if i > self.indice:
             nive = self.indice
             self.todos = True
-            return
+            selfdestruct(self.casa)
         else:
             if (self.apostadores[i].equipo1 == self.pequipo1) and (self.apostadores[i].equipo2 == self.pequipo2):
                 send(self.apostadores[i].apostador,self.apostadores[i].apuesta + (self.apostadores[i].apuesta/2) )
@@ -126,10 +126,3 @@ def ganar(apos:Juego)-> uint256:
 def ganado(apos: Juego)-> bool:
     assert self.apuntados,"Apuntados"
     return (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
-
-
-#Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
-@external
-def finalizacion():
-    assert self.todos,"Se han devuelto a todos"
-    selfdestruct(self.casa)
