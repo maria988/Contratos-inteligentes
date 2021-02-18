@@ -18,7 +18,7 @@ ni : int128
 apostadores: HashMap[int128, Juego]
 niv : int128
 invertido: bool
-todos: bool
+
 
 
 #Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
@@ -67,18 +67,8 @@ def devolver(_eq1:int128, _eq2:int128):
     nive:int128 = self.niv
     for i in range (nive,nive+30):
         if i >= self.ni:
-            nive = self.ni
-            self.todos = True
-            return
+            selfdestruct(self.casa)
         else:
             if (self.apostadores[i].equipo1 == _eq1) and (self.apostadores[i].equipo2 == _eq2):
                 send(self.apostadores[i].apostador, self.apostadores[i].apuesta + (self.apostadores[i].apuesta/2))
-                
-            self.apostadores[i]= empty(Juego)
     self.niv = nive + 30
-
-#Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa
-@external
-def finalizacion():
-    assert self.todos,"Se han devuelto a todos"
-    selfdestruct(self.casa)
