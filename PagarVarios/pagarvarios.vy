@@ -23,13 +23,14 @@ def __init__(_precio: uint256):
 def pagar(empresa: address):
     assert self.empresa == empresa,"Empresa"
     assert msg.sender != self.empresa,"Cliente"
-    if self.yapagado[msg.sender] == 1:
-        self.yapagado[msg.sender] = msg.value
-    else:
+    if msg.value < self.precio:
         self.yapagado[msg.sender] += msg.value
-        
-    self.precio -= msg.value
-    if self.precio == 0:
+        self.precio -= msg.value
+    else:
+        self.yapagado[msg.sender] += self.precio
+        if msg.value > self.precio:
+            send(msg.sender, msg.value - self.precio)
+        self.precio = 0
         self.pagado= True
 
 #Se ha recibido o se ha realizado el servicio requerido       
