@@ -111,7 +111,7 @@ def parar(calle: uint256, litros: uint256,lleno: bool):
         send(self.empresa, litros*self.gasolinera[surti.combustible].precio_litro)
         
     else:
-        send(self.empresa,self.surtidores[calle-1].pagado)
+        send(self.empresa,self.surtidores[calle].pagado)
     self.surtidores[calle] = empty(Calles)
 
 #Funcion para llenar los depositos de combustible
