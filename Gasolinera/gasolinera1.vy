@@ -25,10 +25,10 @@ maximo: public(uint256)
 gasolinera: public(HashMap[String[3],Combustibles])
 
 #para cada surtidor almacena la estructura Calles
-surtidores: public(HashMap[uint256,Calles])
+surtidores: public(Calles[2])
 
 #para cada seleccion almacena el precio de la seleccion
-seleccion: public(HashMap[uint256,uint256])
+seleccion: public(uint256[7])
 
 #Constructor del comtrato, pone precio de cada tipo de combustible
 #los litros que hay de cada uno, el maximo de litros que puede haber
@@ -59,13 +59,13 @@ def __init__(_precio95: uint256,_precio98: uint256,_precioN: uint256,_precioP: u
     self.gasolinera["DiN"] = Combustibles({litros: _litrosN,precio_litro: _precioN})
     self.gasolinera["DiP"] = Combustibles({litros: _litrosP,precio_litro: _precioP})
     self.maximo = _maximo
-    self.seleccion[1] = _p1
-    self.seleccion[2] = _p2
-    self.seleccion[3] = _p3
-    self.seleccion[4] = _p4
-    self.seleccion[5] = _p5
-    self.seleccion[6] = _p6
-    self.seleccion[7] = _p7
+    self.seleccion[0] = _p1
+    self.seleccion[1] = _p2
+    self.seleccion[2] = _p3
+    self.seleccion[3] = _p4
+    self.seleccion[4] = _p5
+    self.seleccion[5] = _p6
+    self.seleccion[6] = _p7
 
 #Funcion externa que dado una String[3] te devuelve el precio del combustible
 @view
@@ -85,9 +85,9 @@ def bienescrito(nombre: String[3])-> bool:
 @payable
 @external
 def echargasolina(calle: uint256, comb: String[3],sel: uint256):
-    assert (calle == 1 and not (self.surtidores[1].uso)) or (calle == 2 and not (self.surtidores[2].uso)),"No se estan usando"
+    assert (calle == 0 and not (self.surtidores[0].uso)) or (calle == 1 and not (self.surtidores[1].uso)),"No se estan usando"
     assert self.bienescrito(comb),"Bien escrito"
-    assert (sel < 8 and sel > 0),"Seleccion valida"
+    assert (sel < 7 and sel >= 0),"Seleccion valida"
     assert msg.value == self.seleccion[sel],"Precio valido"
     assert self.gasolinera[comb].litros >= self.seleccion[sel] / self.gasolinera[comb].precio_litro,"Hay litros suficientes"
     
@@ -96,21 +96,22 @@ def echargasolina(calle: uint256, comb: String[3],sel: uint256):
                                      combustible:comb,pagado:msg.value,selec:sel})
 
 #Funcion para volver a poner el booleano use en False y asi no poder usarse hasta depositar ether
-#En el caso de haber seleccionado la opcion 7 que es la de llenado, se devuelve el ether correspondiente a los litros no echados
+#En el caso de haber seleccionado la opcion 6 que es la de llenado, se devuelve el ether correspondiente a los litros no echados
 #en cualquier otro caso el dinero va a la gasolinera    
 @external
 def parar(calle: uint256, litros: uint256,lleno: bool):
+    assert calle == 0 or calle == 1,"Numero calle correcto"
     assert self.surtidores[calle].uso,"El surtidor se esta usando"
     assert (self.surtidores[calle].tope == litros or lleno),"Esta lleno o tope"
     surti: Calles = self.surtidores[calle]
     surti.uso = False
     self.gasolinera[surti.combustible].litros -= litros
-    if surti.selec == 7:
+    if surti.selec == 6:
         send(surti.cliente,(self.gasolinera[surti.combustible].precio_litro )*(surti.tope - litros))
         send(self.empresa, litros*self.gasolinera[surti.combustible].precio_litro)
         
     else:
-        send(self.empresa,self.surtidores[calle].pagado)
+        send(self.empresa,self.surtidores[calle-1].pagado)
     self.surtidores[calle] = empty(Calles)
 
 #Funcion para llenar los depositos de combustible
