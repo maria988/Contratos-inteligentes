@@ -9,10 +9,6 @@ event Transaccion:
     receptor: indexed(address)
     valor: uint256
 
-struct Pagado:
-    emisor: address
-    cantidad: uint256
-
 empresa: public(address)
 precio:public(uint256)
 #Booleano para saber si se ha pagado en su totalidad el producto/cuenta
