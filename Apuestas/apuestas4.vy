@@ -24,7 +24,6 @@ sigindice : uint256
 
 #Variables para saber si la casa ha mandado el ether necesario y si se le ha devuelto el dinero a todos
 invertido: bool
-todos: bool
 
 #Boolenao para saber si se ha introducido los puntos de cada equipo
 apuntados:bool
@@ -139,16 +138,13 @@ def devolver():
     for i in range (nive,nive+30):
         if i >= self.indice:
             nive = self.indice
-            self.todos = True
-            return
+            selfdestruct(self.casa)
         else:
             ganado: bool = False
             cantidad: uint256 = 0
             (ganado, cantidad) = self._ganar(self.apostadores[i])
             if ganado:
                 send(self.apostadores[i].apostador, cantidad)
-                
-            self.apostadores[i]= empty(Juego)
     self.sigindice = nive + 30
     
 #Funcion para asignar a las variables globales la puntuacion de cada equipo
@@ -162,8 +158,3 @@ def ganadores(_eq1: uint256, _eq2: uint256):
     self.pequipo2 = _eq2
     
 
-#Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
-@external
-def finalizacion():
-    assert self.todos,"Se han devuelto a todos"
-    selfdestruct(self.casa)
