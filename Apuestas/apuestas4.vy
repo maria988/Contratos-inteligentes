@@ -65,32 +65,31 @@ def _empezado() -> bool:
 def empezado() -> bool:
     return self._empezado()
 
-#Funcion interna que devuelve un uint256, que es el ether ganado
+#Funcion interna que devuelve una tupla el booleano es si se ha ganado o no y el uint256 es el ether ganado
 @view
 @internal
-def _ganar(apos: Juego)-> uint256:
-    return apos.apuesta + (apos.apuesta/2) 
-
-#Funcion interna que devuelve un booleano para saber si se ha acertado con la jugada o no
-@view
-@internal
-def _ganado(apos: Juego)-> bool:
-    valor: uint256 = 0
-    return(apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
-     
+def _ganar(apos: Juego)-> (bool,uint256):
+    booleano : bool = (apos.equipo1 == self.pequipo1) and (apos.equipo2 == self.pequipo2)
+    return (booleano,apos.apuesta + (apos.apuesta/2))
 
 #Funcion externa que devuelve un booleano para saber si se ha acertado con la jugada o no
 @view
 @external
 def ganado(apos: Juego)-> bool:
     assert self.apuntados,"Apuntados"
-    return self._ganado(apos)
+    ganado: bool = False
+    cantidad: uint256 = 0
+    (ganado, cantidad) = self._ganar(apos)
+    return ganado
 
 #Funcion externa que devuelve un uint256, que es el ether ganado
 @view
 @external
 def ganar(apos: Juego)-> uint256:
-    return self._ganar(apos)
+    ganado: bool = False
+    cantidad: uint256 = 0
+    (ganado, cantidad) = self._ganar(apos)
+    return cantidad
 
 #Funcion interna que devuelve la cantidad de ether que tiene que introducir la casa
 @view
@@ -143,8 +142,11 @@ def devolver():
             self.todos = True
             return
         else:
-            if self._ganado(self.apostadores[i]):
-                send(self.apostadores[i].apostador, self._ganar(self.apostadores[i]))
+            ganado: bool = False
+            cantidad: uint256 = 0
+            (ganado, cantidad) = self._ganar(self.apostadores[i])
+            if ganado:
+                send(self.apostadores[i].apostador, cantidad)
                 
             self.apostadores[i]= empty(Juego)
     self.sigindice = nive + 30
