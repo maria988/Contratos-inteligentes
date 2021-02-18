@@ -22,9 +22,8 @@ indice : uint256
 apostadores: HashMap[uint256, Juego]
 sigindice : uint256
 
-#Variables para saber si la casa ha mandado el ether necesario y si se le ha devuelto el dinero a todos
+#Variables para saber si la casa ha mandado el ether necesario 
 invertido: bool
-todos: bool
 
 #Boolenao para saber si se ha introducido los puntos de cada equipo
 apuntados:bool
@@ -83,13 +82,11 @@ def devolver():
     for i in range (nive,nive+30):
         if i > self.indice:
             nive = self.indice
-            self.todos = True
             selfdestruct(self.casa)
         else:
             if (self.apostadores[i].equipo1 == self.pequipo1) and (self.apostadores[i].equipo2 == self.pequipo2):
                 send(self.apostadores[i].apostador,self.apostadores[i].apuesta + (self.apostadores[i].apuesta/2) )
                 
-            self.apostadores[i]= empty(Juego)
     self.sigindice = nive + 30
 
 #Funcion para asignar a las variables globales la puntuacion de cada equipo
