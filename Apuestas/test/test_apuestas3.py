@@ -8,8 +8,8 @@ TIEMPO_INICIO = 5
 INITIAL_VALUE = 1
 
 @pytest.fixture
-def apuestas3_contract(apuestas3, accounts):
-    yield apuestas3.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
+def apuestas3_contract(Apuestas3, accounts):
+    yield Apuestas3.deploy(TIEMPO_INICIO,DURACION,{'from': accounts[0],'value':INITIAL_VALUE})
 
 def test_inicial(apuestas3_contract,accounts):
     assert apuestas3_contract.inicial() == INITIAL_VALUE
@@ -34,8 +34,6 @@ def test_uso(apuestas3_contract,accounts):
     assert apuestas3_contract.ganado((accounts[4],1,1,2),{'from':accounts[4]})
     assert not apuestas3_contract.ganado((accounts[3],1,0,6),{'from':accounts[3]}) 
     apuestas3_contract.devolver({'from':accounts[0]})
-    assert apuestas3_contract.balance() == 24
-    apuestas3_contract.finalizacion({'from':accounts[0]})
     
 def test_failed_transactions(apuestas3_contract, accounts):
     apuestas3_contract.apostar(1,1,{'from': accounts[2],'value':4})
@@ -94,6 +92,3 @@ def test_failed_transactions(apuestas3_contract, accounts):
         apuestas3_contract.devolver({'from': accounts[0]})
     
     apuestas3_contract.mitad({'from': accounts[0],'value':100})
-    
-    with brownie.reverts("Se han devuelto a todos"):
-        apuestas3_contract.finalizacion({'from': accounts[0]})
