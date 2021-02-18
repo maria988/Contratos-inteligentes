@@ -140,23 +140,24 @@ def comprobar():
             self.siguiente = block.timestamp + self.periodo
             self.indi = empty(uint256)
             self.todos = True
+            return
         else:
             if not self.clientes[i].recibido:
                 self.fallo = True
                 self.indi = i
-            elif not self.fallo:
-                if self.clientes[i].pagado and self.clientes[i].envpag:
-                    send(self.empresa,self.cuota)
-                    self.clientes[i].envpag = True
-                elif not self.clientes[i].pagado :
-                    send(msg.sender,self.clientes[i].acumulado)
-                    self.libres[self.indi]= i
-                    self.registrado[self.clientes[i].cliente] = empty(BoolNum)
-                    self.indilibres += 1
-                    self.clientes[i] = empty(Subcriptor)
-                else:
-                    self.clientes[i].pagado = False
-                    self.clientes[i].enviado = False
-                    self.clientes[i].recibido = False
-    if not self.fallo and not self.todos:
+                break
+            elif self.clientes[i].pagado and self.clientes[i].envpag:
+                send(self.empresa,self.cuota)
+                self.clientes[i].envpag = True
+            elif not self.clientes[i].pagado :
+                send(msg.sender,self.clientes[i].acumulado)
+                self.libres[self.indi]= i
+                self.registrado[self.clientes[i].cliente] = empty(BoolNum)
+                self.indilibres += 1
+                self.clientes[i] = empty(Subcriptor)
+            else:
+                self.clientes[i].pagado = False
+                self.clientes[i].enviado = False
+                self.clientes[i].recibido = False
+    if not self.fallo:
         self.indi = ind + 20
