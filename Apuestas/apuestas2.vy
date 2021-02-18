@@ -22,9 +22,8 @@ ni : int128
 niv : int128
 apostadores: HashMap[int128, Juego]
 
-#Variables para saber si la casa ha mandado el ether necesario y si se le ha devuelto el ether ganado a todos
+#Variables para saber si la casa ha mandado el ether necesario
 invertido: bool
-todos: bool
 
 #Constructor del contrato, primero comprueba que el tiempo_inicio es mayor que 0
 #y que el ether enviado por la casa de apuestas se mayor que cero.
@@ -77,19 +76,9 @@ def devolver(_eq1:int128, _eq2:int128):
     nive:int128 = self.niv
     for i in range (nive,nive+30):
         if i >= self.ni:
-            nive = self.ni
-            self.todos = True
-            return
+            selfdestruct(self.casa)
         else:
             if self._acertado(i):
                 send(self.apostadores[i].apostador, self.apostadores[i].apuesta + (self.apostadores[i].apuesta/2))
                 
-            self.apostadores[i]= empty(Juego)
     self.niv = nive + 30
-
-   
-#Cuando se devuelva todo el dinero, se destruye el contrato y el dinero que hubiese va a la casa    
-@external
-def finalizacion():
-    assert self.todos,"Se han devuelto a todos"
-    selfdestruct(self.casa)
