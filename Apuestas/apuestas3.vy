@@ -81,7 +81,6 @@ def devolver():
     nive:uint256 = self.sigindice
     for i in range (nive,nive+30):
         if i > self.indice:
-            nive = self.indice
             selfdestruct(self.casa)
         else:
             if (self.apostadores[i].equipo1 == self.pequipo1) and (self.apostadores[i].equipo2 == self.pequipo2):
