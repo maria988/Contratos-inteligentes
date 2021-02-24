@@ -12,7 +12,7 @@ TIEMPO_CONTRATO = 10
 def alquiler1_contract(alquiler1, accounts):
     yield alquiler1.deploy(MENSUALIDAD,TIEMPO,TIEMPO_CONTRATO,{'from': accounts[0],'value':INITIAL_VALUE})
 
-def test_initial(alquiler1_contract,accounts):
+def test_inicial(alquiler1_contract,accounts):
     assert alquiler1_contract.fianza() == INITIAL_VALUE
     assert alquiler1_contract.arrendador() == accounts[0]
     assert alquiler1_contract.mensualidad() == MENSUALIDAD
