@@ -76,18 +76,18 @@ def _ganar(apos: Juego)-> (bool,uint256):
 @external
 def ganado(apos: Juego)-> bool:
     assert self.apuntados,"Apuntados"
-    ganado: bool = False
+    gana: bool = False
     cantidad: uint256 = 0
-    (ganado, cantidad) = self._ganar(apos)
-    return ganado
+    (gana, cantidad) = self._ganar(apos)
+    return gana
 
 #Funcion externa que devuelve un uint256, que es el ether ganado
 @view
 @external
 def ganar(apos: Juego)-> uint256:
-    ganado: bool = False
+    gana: bool = False
     cantidad: uint256 = 0
-    (ganado, cantidad) = self._ganar(apos)
+    (gana, cantidad) = self._ganar(apos)
     return cantidad
 
 #Funcion interna que devuelve la cantidad de ether que tiene que introducir la casa
@@ -139,10 +139,10 @@ def devolver():
         if i >= self.indice:
             selfdestruct(self.casa)
         else:
-            ganado: bool = False
+            gana: bool = False
             cantidad: uint256 = 0
-            (ganado, cantidad) = self._ganar(self.apostadores[i])
-            if ganado:
+            (gana, cantidad) = self._ganar(self.apostadores[i])
+            if gana:
                 send(self.apostadores[i].apostador, cantidad)
     self.sigindice = nive + 30
     
