@@ -46,7 +46,7 @@ def test_inicial(litros_contract,accounts):
     assert litros_contract.apuntos() == APUNTOS
     
 
-def test_comprovacion(litros_contract,accounts):
+def test_comprobacion(litros_contract,accounts):
     assert litros_contract.precio("G95",{'from':accounts[1]}) == PRECIO95
     assert litros_contract.precio("G98",{'from':accounts[1]}) == PRECIO98
     assert litros_contract.precio("DiN",{'from':accounts[1]}) == PRECION
