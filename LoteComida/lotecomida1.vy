@@ -1,5 +1,6 @@
 # @version ^0.2.8
 #Lote de comida
+#Se crea un contrato para cada lote de comida y en el caso de esté mal devuelve el ether a cada comprador.
 
 struct Comprador:
     cliente:address
