@@ -1,6 +1,6 @@
 # @version ^0.2.8
 #Contrato para alquilar una casa/piso
-#Variación de alquiler1 que tiene más gasto de gas
+#Variación de alquiler1: crea un evento para que los usuarios del contrato reciban una clave para poder entrar en la casa
 
 #Creamos un evento para que queden registradas las transacciones mensuales.
 event Transaccion:
