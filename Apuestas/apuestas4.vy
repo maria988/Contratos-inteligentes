@@ -1,5 +1,5 @@
 # @version ^0.2.8
-#Apostar en un partido mas completo que #1 y #2
+#Apostar en un partido mas completo que #1 y #2, este tiene más uso de gas que #3
 #Creamos una estructura para almacenar las apuestas en un diccionario
 struct Juego:
     apostador: address
