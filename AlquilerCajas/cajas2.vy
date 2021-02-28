@@ -1,5 +1,7 @@
 # @version ^0.2.8
 #Alquiler de cajas fuertes/trasteros
+#Variación de cajas1 que tiene un gasto de gas mayor que este
+
 #Creamos un evento para que quede registrada la transaccion mensual
 event Transaccion:
     receptor: indexed(address)
