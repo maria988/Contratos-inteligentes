@@ -1,6 +1,7 @@
 # @version ^0.2.8
 
 #Contrato para devolver parte del dinero del billete del avion si este no sale a tiempo
+#Variación de avion1 pero con mayor uso de gas
 
 #Creamos un evento para que quede registrado la devolucion del importe
 event Devolucion:
