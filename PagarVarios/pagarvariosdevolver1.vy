@@ -1,7 +1,7 @@
 # @version ^0.2.8
 #Pagar una cuenta entre varias personas
 
-#Variable spara saber la direccion de la empresa y el precio del producto/cuenta
+#Variable para saber la direccion de la empresa y el precio del producto/cuenta
 #Devuelve el importe si no se recibe el producto
 #Creamos un evento para que se queden registradas las transacciones
 event Transaccion:
