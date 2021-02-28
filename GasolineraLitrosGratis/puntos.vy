@@ -38,15 +38,15 @@ def __init__(_puntos:uint256,_lg:uint256,_apuntos: uint256 ):
 #Funcion para ir acumulando puntos con la compra
 @external
 def acumularpuntos(gastado: uint256, cliente: address):
-    assert gastado > 0
-    assert self.list_clientes[cliente].cliente
+    assert gastado > 0,"Positivo"
+    assert self.list_clientes[cliente].cliente,"Es cliente"
     self.list_clientes[cliente].puntos += gastado / self.apuntos
 
 #Funcion para usar los puntos acumulados o usar los litros almacenados
 @external
 def usarpuntos(cliente: address)-> uint256:
-    assert self.list_clientes[cliente].cliente
-    assert self.list_clientes[cliente].puntos >= self.puntos or self.list_clientes[cliente].litros > 0
+    assert self.list_clientes[cliente].cliente,"Es cliente"
+    assert self.list_clientes[cliente].puntos >= self.puntos or self.list_clientes[cliente].litros > 0,"Puntos suficientes o litros gratis"
     self.list_clientes[cliente].puntos -= self.puntos
     self.list_clientes[cliente].litros += self.litrosgratis
     return self.list_clientes[cliente].litros
@@ -54,14 +54,14 @@ def usarpuntos(cliente: address)-> uint256:
 #Funcion para quitar los litros usados de la cantidad posible a usar
 @external
 def usarlitros(cliente:address, _litros: uint256):
-    assert self.list_clientes[cliente].cliente
-    assert self.list_clientes[cliente].litros >= _litros
+    assert self.list_clientes[cliente].cliente,"Es cliente"
+    assert self.list_clientes[cliente].litros >= _litros,"Suficientes litros"
     self.list_clientes[cliente].litros -= _litros
     
 #Funcion para ser cliente
 @external
 def nuevocliente(nuevo_cliente:address):
-    assert not self.list_clientes[nuevo_cliente].cliente
+    assert not self.list_clientes[nuevo_cliente].cliente,"No es cliente"
     self.list_clientes[nuevo_cliente].cliente= True
     self.list_clientes[nuevo_cliente].puntos = 0
     self.list_clientes[nuevo_cliente].litros = 0
@@ -69,5 +69,5 @@ def nuevocliente(nuevo_cliente:address):
 #Funcion para dejar de ser cliente
 @external
 def dejardesercliente(cliente: address):
-    assert self.list_clientes[cliente].cliente
+    assert self.list_clientes[cliente].cliente,"Es cliente"
     self.list_clientes[cliente] = empty(Puntos_litros)
