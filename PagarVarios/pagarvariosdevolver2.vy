@@ -1,7 +1,8 @@
 # @version ^0.2.8
 #Pagar una cuenta entre varias personas
 
-#Variable para saber la direccion de la empresa y el precio del producto/cuenta
+#Variante de pagarvariosdevolver1 que gasta más gas
+
 #Devuelve el el valor del producto si no se recibe
 #Creamos un evento para que se queden registradas las transacciones
 event Transaccion:
