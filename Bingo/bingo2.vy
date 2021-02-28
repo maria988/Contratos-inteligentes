@@ -1,5 +1,7 @@
 # @version ^0.2.8
 #Bingo
+#Version de bingo1 con mayor uso de gas
+
 #Variable para contener la direccion de la casa de apuestas
 casa: public(address)
 #Precio del carton
