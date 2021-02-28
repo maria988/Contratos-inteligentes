@@ -22,11 +22,11 @@ litrosgratis: public(uint256)
 apuntos: public(uint256)
 
 #Variable para asociar a acada cliente los puntos que lleva
-list_clientes: HashMap[address,Puntos_litros]
+list_clientes: public(HashMap[address,Puntos_litros])
 
 
 
-
+#Constructor del contrato
 @external
 def __init__(_puntos:uint256,_lg:uint256,_apuntos: uint256 ):
     self.empresa = msg.sender
@@ -35,21 +35,23 @@ def __init__(_puntos:uint256,_lg:uint256,_apuntos: uint256 ):
     self.apuntos = _apuntos
 
 
+#Funcion para ir acumulando puntos con la compra
 @external
 def acumularpuntos(gastado: uint256, cliente: address):
     assert gastado > 0
     assert self.list_clientes[cliente].cliente
     self.list_clientes[cliente].puntos += gastado / self.apuntos
 
-
+#Funcion para usar los puntos acumulados o usar los litros almacenados
 @external
 def usarpuntos(cliente: address)-> uint256:
     assert self.list_clientes[cliente].cliente
-    assert self.list_clientes[cliente].puntos >= self.puntos
+    assert self.list_clientes[cliente].puntos >= self.puntos or self.list_clientes[cliente].litros > 0
     self.list_clientes[cliente].puntos -= self.puntos
     self.list_clientes[cliente].litros += self.litrosgratis
-    return self.list_clientes[cliente].puntos
+    return self.list_clientes[cliente].litros
 
+#Funcion para quitar los litros usados de la cantidad posible a usar
 @external
 def usarlitros(cliente:address, _litros: uint256):
     assert self.list_clientes[cliente].cliente
