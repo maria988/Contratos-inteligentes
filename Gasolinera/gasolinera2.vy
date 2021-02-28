@@ -1,4 +1,7 @@
 # @version ^0.2.8
+
+#Variacion de gasolinera1 con mas uso de gas
+
 #Seleccionar un valor predeterminado o llenar el deposito
 #En el caso del valor predeterminado no se devuelve el importe,
 #si es llenado se devuelve lo que no se haya echado
