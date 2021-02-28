@@ -1,5 +1,7 @@
 # @version ^0.2.8
 #Apostar en un partido 
+#Variacion de apuestas1 con mayor uso de gas
+
 #Creamos una estructura para almacenar las apuestas en un diccionario
 struct Juego:
     apostador: address
