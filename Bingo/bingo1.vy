@@ -1,3 +1,4 @@
+  
 # @version ^0.2.8
 #Bingo
 #Variable para contener la direccion de la casa de apuestas
@@ -14,7 +15,7 @@ acumulado: public(uint256)
 lista_numeros:public(HashMap[uint256,bool])
 #Booleanos para saber si ya se ha cantado linea y si se ha empezado a jugar
 yalinea: public(bool)
-empezado: bool
+empezado: public(bool)
 
 #Constructor para inicializar el contrato
 @payable
