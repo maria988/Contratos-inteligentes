@@ -2,13 +2,25 @@
 
 #Contrato telefono saldo
 
+#Variable del precio por unidad de tiempo
 precioTiempo: public(uint256)
+
+#Variable del precio del establecimiento de llamada
 estabLlamada: public(uint256)
+
+#Direccion de la compania
 empresa: public(address)
+
+#Numero de telefono 
 telefono: public(String[9])
+
+#Booleano para saber si se esta llamando o no
 llamando: bool
+
+#Precio de la llamada realizada
 llamada: uint256
 
+#Constructor del contrato, se almacenan los distintos precios y el numero de telefono
 @external
 def __init__(_precioTiempo: uint256,_estabLlamada: uint256, _telefono: String[9]):
     self.empresa = msg.sender
@@ -16,24 +28,28 @@ def __init__(_precioTiempo: uint256,_estabLlamada: uint256, _telefono: String[9]
     self.estabLlamada = _estabLlamada
     self.telefono = _telefono
 
+#Funcion interna que devuelve el saldo del telefono
 @view
 @internal
 def _saldo()->uint256:
     return self.balance
 
+#Funcion para consultar el saldo del telefono
 @view
 @external
 def saldo(ntelefono: String[9]) ->uint256:
     assert self.telefono== ntelefono,"Telefono correcto"
     return self._saldo()
 
+#Funcion para recargar el telefono
 @payable    
 @external
 def recargar(ntelefono: String[9],empresa:address):
     assert self.empresa == empresa,"Empresa"
     assert self.telefono == ntelefono,"Telefono correcto"
     assert msg.value > 0,"Valor positivo"
-    
+
+#Funcion para llamar, se pasa el numero de telefono que se va a usar
 @external
 def llamar(ntelefono: String[9]):
     assert self.telefono == ntelefono,"Telefono correcto"
@@ -42,6 +58,7 @@ def llamar(ntelefono: String[9]):
     self.llamando = True
     send(self.empresa,self.estabLlamada)
 
+#Funcion para colgar, se psas el numero de telefono que se va a usar
 @external
 def colgar(ntelefono:String[9]):
     assert self.telefono == ntelefono,"Telefono correcto"
@@ -52,6 +69,7 @@ def colgar(ntelefono:String[9]):
         cantidad = self.balance
     send(self.empresa,cantidad)
     
+#Funcion para cortar la llamda en el caso de que se agote el saldo
 @external
 def cortar(ntelefono:String[9]):
     assert self.telefono == ntelefono,"Telefono correcto"
