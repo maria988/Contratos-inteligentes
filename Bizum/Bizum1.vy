@@ -9,10 +9,12 @@ event Transferencia:
     receptor: indexed(address)
     valor: uint256
 
+#Creamos un evento para registrar las retiradas
 event Retirar:
     emisororden: indexed(address)
     valor: uint256
-    
+
+#Variable para almacenar la direccion del titular
 titular: public(address)
 
 #Se construye el contrato y para ello se tiene que enviar ether para que se almacene
