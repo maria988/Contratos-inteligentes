@@ -4,11 +4,11 @@
 #variables de la empresa 
 empresa: public(address)
 salario: public(uint256)
-despedido: bool
+despedido: public(bool)
 #precio por hora trabajada
 precio_hora: public(uint256)
 #Se acumula la posible indemnizacion
-indemnizacion: uint256
+indemnizacion: public(uint256)
 #El precio de la indemnizacion cada mes
 mes_indem: public(uint256)
 
@@ -20,8 +20,9 @@ fin_de_mes: public(uint256)
 #Variable referidas al trabajador
 trabajador: public(address)
 hora_entrada: uint256
-horas_acumuladas: uint256
-trabaja: bool
+horas_acumuladas: public (uint256)
+trabaja: public(bool)
+duracion_mes: public(uint256)
 
 #Inicializacion del contrato
 @external 
@@ -34,7 +35,8 @@ def __init__(_duracion_contrato: uint256, _trabajador: address, _horas_mes: uint
     self.trabajador = _trabajador
     self.horas_mes = _horas_mes
     self.salario = _salario
-    self.duracion_contrato = _duracion_contrato
+    self.duracion_contrato = block.timestamp + _duracion_contrato
+    self.duracion_mes = _fin_de_mes
     self.fin_de_mes = block.timestamp + _fin_de_mes
     self.hora_entrada = 0
     self.horas_acumuladas = 0
@@ -54,6 +56,7 @@ def firmar():
 def fichar():
     assert msg.sender == self.trabajador,"Es el trabajador"
     assert block.timestamp <= self.fin_de_mes,"No se ha terminado el mes"
+    assert not self.despedido and self.trabaja,"No despedido y trabaja"
     if self.hora_entrada == 0:
         self.hora_entrada = block.timestamp
     else:
@@ -85,9 +88,11 @@ def pagar():
     else:
         send(self.trabajador,msg.value-self.mes_indem)
         self.indemnizacion += self.mes_indem
-        self.horas_acumuladas = 0
         if self.horas_acumuladas < self.horas_mes:
             self.despedido = True
             selfdestruct(self.empresa)
-        elif block.timestamp > self.duracion_contrato :
+            
+        elif block.timestamp > self.duracion_contrato or not self.trabaja:
             selfdestruct(self.empresa)
+        self.horas_acumuladas = 0
+        self.fin_de_mes = block.timestamp + self.duracion_mes
