@@ -15,8 +15,8 @@ acumulado: public(uint256)
 #Si el numero ha salido el bool asociado se cambia a true
 lista_numeros:public(HashMap[uint256,bool])
 #Booleanos para saber si ya se ha cantado linea y si se ha empezado a jugar
-yalinea: bool
-empezado: bool
+yalinea: public(bool)
+empezado: public(bool)
 
 #Constructor para inicializar el contrato
 @payable
