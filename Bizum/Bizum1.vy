@@ -33,18 +33,18 @@ def efectivo()->uint256:
 @payable
 @external
 def pagarme(direccion: address):
-    assert direccion == self.titular
-    assert msg.sender != self.titular
-    assert msg.value > 0
+    assert direccion == self.titular,"Receptor titular"
+    assert msg.sender != self.titular,"Emisor no titular"
+    assert msg.value > 0,"Positivo"
     log Transferencia(msg.sender,self.titular,msg.value)
 
 #Funcion para mandar ether
 @payable
 @external
 def pagar(direccion: address, valor: uint256):
-    assert msg.sender == self.titular
-    assert msg.sender != direccion
-    assert (valor <= self.balance) or (msg.value >= valor)
+    assert msg.sender == self.titular,"Emisor titular"
+    assert msg.sender != direccion,"Receptor no titular"
+    assert (valor <= self.balance) or (msg.value >= valor),"Suficiente"
     send(direccion,valor)
     log Transferencia(self.titular, direccion,valor)
     
@@ -52,19 +52,20 @@ def pagar(direccion: address, valor: uint256):
 @payable
 @external
 def meterdinero():
-    assert msg.value > 0
+    assert msg.value > 0,"Positivo"
+    assert msg.sender == self.titular,"Titular"
     
 #Funcion que el titular obtenga una cantidad de ether del contrato
 @external
 def sacardinero(cantidad: uint256):
-    assert cantidad <= self.balance
-    assert self.titular == msg.sender
+    assert cantidad <= self.balance,"Suficiente"
+    assert self.titular == msg.sender,"Titular"
     send(self.titular,cantidad)
     log Retirar(self.titular,cantidad)
 
 #Funcion para destruir el contrato y enviar el ether del mismo al titular    
 @external
 def destruir():
-    assert msg.sender == self.titular
+    assert msg.sender == self.titular,"Titular"
     log Retirar(self.titular,self.balance)
     selfdestruct(self.titular)
